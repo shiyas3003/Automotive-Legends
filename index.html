@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Chosen Palette: Google Store (White, Grays, Vibrant Blue Accent) -->
+    <!-- Application Structure Plan: The application uses a List-Detail view. A top-level control panel provides a clear, three-step filtering process (Year -> Category -> Region). The year selector is a horizontal scrolling dial for an intuitive user experience. Search results populate a scrollable list on the left. Selecting an item instantly updates the main detail panel on the right. This architecture, inspired by modern e-commerce sites, prioritizes a clean, uncluttered user flow and eliminates disruptive modals. -->
+    <!-- Visualization & Content Choices: The primary interaction is the List-Detail view. Goal: Improve information density and ease of comparison. Method: A two-column CSS grid layout. Interaction: Clicking a list item updates the detail view. Justification: This pattern is highly intuitive and efficient. The detail view reuses the proven, accessible tab component system, restyled for the new Google-inspired theme, ensuring all accessibility principles are maintained. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automotive Legacy Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff; 
+            color: #202124; /* Google's primary text color */
+        }
+        .loader {
+            border: 4px solid #e8eaed;
+            border-left-color: #1a73e8; /* Google Blue */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Accessible Tab Styles */
+        .detail-tab { transition: all 0.2s ease; color: #5f6368; border-bottom: 2px solid transparent; padding: 8px 4px; font-weight: 500;}
+        .detail-tab[aria-selected="true"] { color: #1a73e8; border-bottom-color: #1a73e8; font-weight: 600; }
+        .detail-tab:focus-visible { outline: 2px solid #1a73e8; outline-offset: 2px; border-radius: 4px; }
+        .detail-tab-panel[hidden] { display: none; }
+        @keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+        .fade-in-content { animation: fade-in 0.4s ease-in-out; }
+
+        /* Segmented Control (Google Tabs Style) */
+        .segmented-control { position: relative; display: flex; border-bottom: 1px solid #dadce0; }
+        .segmented-control-btn { position: relative; flex: 1; padding: 12px 12px; border: none; background: transparent; font-weight: 500; color: #5f6368; cursor: pointer; transition: color 0.3s ease; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .segmented-control-btn.active { color: #1a73e8; border-bottom-color: #1a73e8; font-weight: 600; }
+        
+        /* List Item Style */
+        .car-list-item { transition: background-color 0.2s ease; }
+        .car-list-item.active { background-color: #e8f0fe; color: #1967d2; }
+        
+        /* New Year Selector */
+        .year-selector-container { position: relative; }
+        .year-selector {
+            display: flex;
+            overflow-x: scroll;
+            scroll-behavior: smooth;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+            padding: 0.5rem 0;
+        }
+        .year-selector::-webkit-scrollbar { display: none; /* Safari/Chrome */ }
+        .year-btn {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            font-weight: 500;
+            color: #5f6368;
+            cursor: pointer;
+            border-radius: 999px;
+            transition: all 0.2s ease-in-out;
+        }
+        .year-btn.active {
+            background-color: #1a73e8;
+            color: white;
+        }
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255,255,255,0.9);
+            border: 1px solid #dadce0;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .year-selector-container:hover .scroll-btn { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-gray-200">
+        <div class="container mx-auto px-4 py-4">
+            <h1 class="text-3xl md:text-4xl font-medium text-center">Automotive Legacy</h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div id="filter-controls" class="bg-gray-50 p-6 rounded-2xl shadow-sm max-w-4xl mx-auto border border-gray-200">
+            <div class="space-y-8">
+                <div>
+                    <h3 class="font-medium text-lg mb-3 text-center md:text-left text-gray-900">1. Select Year</h3>
+                    <div id="year-selector-container" class="year-selector-container">
+                        <button id="scroll-left-btn" class="scroll-btn left-2">&lt;</button>
+                        <div id="year-selector" class="year-selector"></div>
+                        <button id="scroll-right-btn" class="scroll-btn right-2">&gt;</button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-medium text-lg mb-3 text-center md:text-left text-gray-900">2. Choose Category</h3>
+                    <div id="category-tabs-container" class="segmented-control">
+                        <button data-category="Road Cars" class="segmented-control-btn active">Road Cars</button>
+                        <button data-category="F1" class="segmented-control-btn">F1</button>
+                        <button data-category="Rally" class="segmented-control-btn">Rally</button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-medium text-lg mb-3 text-center md:text-left text-gray-900">3. Filter Region <span class="text-gray-500 font-normal">(Optional)</span></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <select id="continent-filter" class="w-full px-3 py-2 bg-gray-100 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                        <select id="country-filter" class="w-full px-3 py-2 bg-gray-100 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <button id="search-btn" class="w-full sm:w-auto bg-blue-600 text-white font-medium py-3 px-16 rounded-full hover:bg-blue-700 transition duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 transform">Search</button>
+            </div>
+        </div>
+        
+        <div id="results-area" class="mt-12">
+            <!-- Results will be rendered here -->
+        </div>
+    </main>
+
+    <script>
+        const searchBtn = document.getElementById('search-btn');
+        const categoryTabsContainer = document.getElementById('category-tabs-container');
+        const resultsArea = document.getElementById('results-area');
+        const continentFilter = document.getElementById('continent-filter');
+        const countryFilter = document.getElementById('country-filter');
+        const yearSelector = document.getElementById('year-selector');
+        const scrollLeftBtn = document.getElementById('scroll-left-btn');
+        const scrollRightBtn = document.getElementById('scroll-right-btn');
+
+        let activeCategory = 'Road Cars';
+        let activeYear = 1990;
+        let currentCarsData = [];
+
+        const countryData = {
+            'Any': ['Any'],
+            'Europe': ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden'],
+            'Asia': ['Any', 'Japan', 'South Korea'],
+            'North America': ['Any', 'United States']
+        };
+
+        function initializeControls() {
+            populateYearSelector();
+            continentFilter.innerHTML = Object.keys(countryData).map(c => `<option value="${c}">${c}</option>`).join('');
+            updateCountryFilter();
+
+            searchBtn.addEventListener('click', fetchCarData);
+            continentFilter.addEventListener('change', updateCountryFilter);
+            
+            categoryTabsContainer.querySelectorAll('.segmented-control-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => handleCategoryClick(e.currentTarget));
+            });
+            
+            scrollLeftBtn.addEventListener('click', () => { yearSelector.scrollBy(-300, 0); });
+            scrollRightBtn.addEventListener('click', () => { yearSelector.scrollBy(300, 0); });
+        }
+        
+        function populateYearSelector() {
+            const currentYear = new Date().getFullYear();
+            let yearsHtml = '';
+            for (let year = currentYear; year >= 1950; year--) {
+                yearsHtml += `<button class="year-btn ${year === activeYear ? 'active' : ''}" data-year="${year}">${year}</button>`;
+            }
+            yearSelector.innerHTML = yearsHtml;
+            
+            yearSelector.querySelectorAll('.year-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    activeYear = parseInt(e.currentTarget.dataset.year, 10);
+                    yearSelector.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                });
+            });
+
+            const activeBtn = yearSelector.querySelector('.active');
+            if(activeBtn) {
+                activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            }
+        }
+
+        function handleCategoryClick(target) {
+            activeCategory = target.dataset.category;
+            categoryTabsContainer.querySelectorAll('.segmented-control-btn').forEach(btn => btn.classList.remove('active'));
+            target.classList.add('active');
+        }
+
+        function updateCountryFilter() {
+            const selectedContinent = continentFilter.value;
+            countryFilter.innerHTML = countryData[selectedContinent].map(country => `<option value="${country}">${country}</option>`).join('');
+        }
+
+        async function fetchCarData() {
+            resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10"><div class="loader"></div><p class="mt-4 text-slate-500">Generating influential ${activeCategory} cars for ${activeYear}...</p></div>`;
+
+            try {
+                const cars = await getCarInfo();
+                if (!cars || !Array.isArray(cars) || cars.length === 0) throw new Error(`Could not retrieve valid car data for the selected criteria.`);
+                currentCarsData = cars;
+                renderResultsLayout(cars);
+            } catch (error) {
+                console.error(`Error fetching data:`, error);
+                showMessage(error.message || 'An unexpected error occurred.');
+            }
+        }
+
+        async function getCarInfo() {
+            let locationPrompt = "from anywhere in the world";
+            if (countryFilter.value !== 'Any') locationPrompt = `from ${countryFilter.value}`;
+            else if (continentFilter.value !== 'Any') locationPrompt = `from ${continentFilter.value}`;
+
+            const prompt = `Generate a list of the top 6 most influential ${activeCategory} vehicles ${locationPrompt} for the year ${activeYear}. For each vehicle, provide its name, a short summary of its influence, a list of 3 interesting facts, and a list of 4 key technical details (e.g., "Engine: 3.0L V12", "Power: 400 HP", "0-60 mph: 4.5s", "Top Speed: 180 mph").`;
+            
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: "application/json", responseSchema: {
+                    type: "OBJECT", properties: { "cars": { type: "ARRAY", items: {
+                        type: "OBJECT", properties: {
+                            "name": { "type": "STRING" }, "influence": { "type": "STRING" },
+                            "interesting_facts": { "type": "ARRAY", "items": { "type": "STRING" } },
+                            "technical_details": { "type": "ARRAY", "items": { "type": "STRING" } }
+                        }, required: ["name", "influence", "interesting_facts", "technical_details"]
+                    }}},
+                }}
+            };
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+            const result = await response.json();
+            
+            if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                const jsonText = result.candidates[0].content.parts[0].text;
+                try {
+                    return JSON.parse(jsonText).cars;
+                } catch (e) {
+                    throw new Error("The data returned from the AI was malformed. Please try your search again.");
+                }
+            } else {
+                throw new Error("Failed to parse car data from the API response.");
+            }
+        }
+        
+        function getImageUrl(carName) {
+            const encodedName = encodeURIComponent(carName.replace(/\s/g, '+'));
+            return `https://placehold.co/800x600/e8eaed/5f6368?text=${encodedName}`;
+        }
+
+        function renderResultsLayout(cars) {
+            resultsArea.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div id="car-list-container" class="lg:col-span-1 bg-white p-4 rounded-xl border border-gray-200 shadow-sm"></div>
+                    <div id="car-detail-container" class="lg:col-span-2"></div>
+                </div>
+            `;
+            renderCarList(cars);
+            renderCarDetails(cars[0], 0);
+        }
+
+        function renderCarList(cars) {
+            const listContainer = document.getElementById('car-list-container');
+            const list = document.createElement('ul');
+            list.className = 'space-y-2';
+            cars.forEach((car, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = `car-list-item p-3 rounded-lg cursor-pointer font-medium text-gray-700 hover:bg-blue-50 ${index === 0 ? 'active' : ''}`;
+                listItem.textContent = car.name;
+                listItem.dataset.index = index;
+                list.appendChild(listItem);
+            });
+            listContainer.innerHTML = '';
+            listContainer.appendChild(list);
+
+            listContainer.querySelectorAll('.car-list-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index, 10);
+                    listContainer.querySelectorAll('.car-list-item').forEach(li => li.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    renderCarDetails(cars[index], index);
+                });
+            });
+        }
+
+        function renderCarDetails(car) {
+            const detailContainer = document.getElementById('car-detail-container');
+            if (!car) {
+                detailContainer.innerHTML = `<p class="text-center text-gray-500">Select a car to see details.</p>`;
+                return;
+            }
+
+            const imageUrl = getImageUrl(car.name);
+            const year = activeYear;
+
+            detailContainer.innerHTML = `
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-lg fade-in-content">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 class="text-2xl md:text-3xl font-medium text-gray-900">${car.name} <span class="text-gray-500 font-normal">(${year})</span></h2>
+                    </div>
+                    <div class="mb-6">
+                        <div class="relative rounded-lg shadow-sm w-full h-64 md:h-80 bg-gray-100">
+                            <img src="${imageUrl}" class="w-full h-full object-cover rounded-lg" alt="${car.name}">
+                        </div>
+                    </div>
+                    
+                    <div id="detail-tabs">
+                        <div role="tablist" aria-label="Car Details" class="flex space-x-6 border-b border-gray-200 mb-4">
+                            <button id="tab-facts" role="tab" aria-selected="true" aria-controls="panel-facts" class="detail-tab">Interesting Facts</button>
+                            <button id="tab-tech" role="tab" aria-selected="false" aria-controls="panel-tech" tabindex="-1" class="detail-tab">Technical Details</button>
+                        </div>
+                        <div id="panel-facts" role="tabpanel" aria-labelledby="tab-facts" class="detail-tab-panel fade-in-content">
+                            <ul class="list-disc list-inside text-gray-600 space-y-2">${car.interesting_facts.map(fact => `<li>${fact}</li>`).join('')}</ul>
+                        </div>
+                        <div id="panel-tech" role="tabpanel" aria-labelledby="tab-tech" class="detail-tab-panel" hidden>
+                            <ul class="space-y-2 text-gray-600">${car.technical_details.map(detail => `
+                                <li class="flex items-center border-b border-gray-100 py-2">
+                                    <strong class="w-1/3 text-gray-500">${detail.split(':')[0]}:</strong>
+                                    <span>${detail.split(':').slice(1).join(':').trim()}</span>
+                                </li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            initializeAccessibleTabs(document.getElementById('detail-tabs'));
+        }
+
+        function initializeAccessibleTabs(tabContainer) {
+            const tabs = Array.from(tabContainer.querySelectorAll('[role="tab"]'));
+            const tabPanels = Array.from(tabContainer.querySelectorAll('[role="tabpanel"]'));
+            
+            const switchTab = (oldTab, newTab) => {
+                newTab.focus();
+                newTab.removeAttribute('tabindex');
+                newTab.setAttribute('aria-selected', 'true');
+                oldTab.setAttribute('aria-selected', 'false');
+                oldTab.setAttribute('tabindex', '-1');
+                
+                const newPanelId = newTab.getAttribute('aria-controls');
+                tabPanels.forEach(panel => {
+                    panel.hidden = (panel.id !== newPanelId);
+                });
+            };
+
+            tabs.forEach((tab, i) => {
+                tab.addEventListener('click', (e) => {
+                    const currentTab = tabContainer.querySelector('[aria-selected="true"]');
+                    if (e.currentTarget !== currentTab) switchTab(currentTab, e.currentTarget);
+                });
+
+                tab.addEventListener('keydown', (e) => {
+                    let index = i;
+                    if (e.key === 'ArrowRight') index = (i + 1) % tabs.length;
+                    else if (e.key === 'ArrowLeft') index = (i - 1 + tabs.length) % tabs.length;
+                    else if (e.key === 'Home') index = 0;
+                    else if (e.key === 'End') index = tabs.length - 1;
+
+                    if (index !== i) tabs[index].focus();
+                    if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        switchTab(tabContainer.querySelector('[aria-selected="true"]'), e.currentTarget);
+                    }
+                });
+            });
+        }
+
+        function showMessage(msg) {
+            resultsArea.innerHTML = `<div class="max-w-md mx-auto bg-red-100 border border-red-200 text-red-700 p-6 rounded-lg text-center"><h3 class="font-bold text-lg mb-2">An Error Occurred</h3><p class="text-sm">${msg}</p></div>`;
+        }
+
+        initializeControls();
+    </script>
+</body>
+</html>
