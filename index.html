@@ -76,7 +76,7 @@
 </main>
 
 <script>
-                // --- DOM Elements ---
+                   // --- DOM Elements ---
     const resultsArea = document.getElementById('results-area');
     const yearSelect = document.getElementById('year-select');
     const categorySelect = document.getElementById('category-select');
@@ -193,7 +193,14 @@
 
     // --- Stage 2: Get Car Details ---
     async function getCarDetails(carName, year) {
-        const prompt = `For the car "${carName} ${year}", find its MSRP for the Irish market in Euro (€), its recent sales figures in Europe, and its global production numbers. Return a single, flat JSON object with the keys "msrp", "sales", "production", and a short "influence" summary. If a value cannot be found, the field should contain 'N/A'.`;
+        // ===== THIS IS THE FIX 🎯 =====
+        // This prompt is now more flexible, asking for general data the AI is more likely to find.
+        const prompt = `For the car "${carName} ${year}", find the following information:
+        1. A short "influence" summary.
+        2. Its "msrp" (original Manufacturer's Suggested Retail Price in its primary market).
+        3. Its "sales" figures (any notable or approximate sales data).
+        4. Its "production" numbers (any notable or approximate production data).
+        Return a single, flat JSON object with these keys. If a value cannot be found, the field should contain 'N/A'.`;
         try {
             const carData = await makeApiCall(prompt);
             if (carData) {
@@ -240,6 +247,7 @@
 
     // --- Start the App ---
     initializeControls();
+
 
 
 </script>
