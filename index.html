@@ -4,7 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Automotive Legacy Explorer</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com">function initializeAccessibleTabs(tabContainer) {
+  const tabs = Array.from(tabContainer.querySelectorAll('[role="tab"]'));
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const currentTab = e.currentTarget;
+      const panelId = currentTab.getAttribute('aria-controls');
+      tabs.forEach(t => {
+        t.setAttribute('aria-selected', 'false');
+        t.setAttribute('tabindex', '-1');
+      });
+      currentTab.setAttribute('aria-selected', 'true');
+      currentTab.removeAttribute('tabindex');
+      Array.from(tabContainer.querySelectorAll('[role="tabpanel"]')).forEach(p => {
+        p.hidden = (p.id !== panelId);
+        p.classList.remove('fade-in-content');
+        if (p.id === panelId) p.classList.add('fade-in-content');
+      });
+    });
+  });
+}
+
+</script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -129,39 +150,44 @@ function renderCarCard(car, year, rank = null) {
   car.production_numbers ||= 'N/A';
   car.original_msrp ||= 'N/A';
 
-  return `
-    <div class="glassmorphism p-6 rounded-2xl fade-in-content mb-12">
-      <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">${car.name} <span class="text-gray-400 font-normal">(${year})</span>
-        ${badge}
-      </h2>
-      <p class="text-gray-400 mb-6 max-w-3xl">${car.influence}</p>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div class="stat-card">
-          <div class=\"stat-label\" title=\"Units sold in that year\">Sales (${year})</div>
-          <div class="stat-value">${car.sales_figures}</div>
+  return `$1</div>
+
+      <div id="detail-tabs">
+        <div role="tablist" class="flex space-x-6 border-b border-[var(--border-color)] mb-4">
+          <button role="tab" aria-selected="true" aria-controls="panel-facts" class="detail-tab">Facts</button>
+          <button role="tab" aria-selected="false" aria-controls="panel-tech" tabindex="-1" class="detail-tab">Tech Specs</button>
+          <button role="tab" aria-selected="false" aria-controls="panel-diagram" tabindex="-1" class="detail-tab">Diagram</button>
         </div>
-        <div class="stat-card">
-          <div class=\"stat-label\" title=\"Total units produced that year\">Production Units</div>
-          <div class="stat-value">${car.production_numbers}</div>
+        <div id="panel-facts" role="tabpanel" class="detail-tab-panel fade-in-content">
+          <ul class="list-disc list-inside text-gray-300 space-y-2">
+            ${(car.interesting_facts || []).map(fact => `<li>${fact}</li>`).join('')}
+          </ul>
         </div>
-        <div class="stat-card">
-          <div class=\"stat-label\" title=\"Manufacturer's Suggested Retail Price in USD\">Original MSRP</div>
-          <div class="stat-value">${car.original_msrp}</div>
+        <div id="panel-tech" role="tabpanel" class="detail-tab-panel" hidden>
+          <ul class="space-y-2 text-gray-300">
+            ${(car.technical_details || []).map(detail => `<li class="flex items-center border-b border-[var(--border-color)] py-2"><strong class="w-1/3 text-gray-400">${detail.split(':')[0]}:</strong><span>${detail.split(':').slice(1).join(':').trim()}</span></li>`).join('')}
+          </ul>
         </div>
-      </div>
-      <div class="relative rounded-lg shadow-lg w-full h-64 md:h-96 bg-black/20 mb-8 border border-[var(--border-color)]">
-        <img src="\${imageUrl}" onerror="this.onerror=null;this.src='https://via.placeholder.com/800x600?text=No+Image'" class="w-full h-full object-cover rounded-lg" alt="${car.name}">
-      </div>
-      <div class="flex gap-6 text-sm text-gray-300 mb-4 flex-wrap">
-        <span>Country: ${car.country || '—'}</span>
-        <span>Segment: ${car.segment || '—'}</span>
-        <span>Engine: ${car.engine || '—'}</span>
-        <span><a href="${wikiLink}" class="text-cyan-400 underline" target="_blank">Learn more</a></span>
-      </div>
-    </div>`;
+        <div id="panel-diagram" role="tabpanel" class="detail-tab-panel" hidden>
+          <div class="relative rounded-lg w-full h-96 bg-black/20 border border-[var(--border-color)]">
+            <img src="https://source.unsplash.com/800x600/?${encodeURIComponent(car.name + ' engine blueprint')}" class="w-full h-full object-contain rounded-lg p-2" alt="${car.name} parts diagram">
+          </div>
+        </div>
+      </div>`;
 }
 
 async function fetchCarData() {
+  const cacheKey = `cars-${yearSelect.value}-${categorySelect.value}-${continentSelect.value}-${countrySelect.value}`;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    try {
+      const data = JSON.parse(cached);
+      resultsArea.innerHTML = data.cars.map((car, i) => renderCarCard(car, yearSelect.value, i === 0 ? 1 : null)).join('');
+      return;
+    } catch (e) {
+      localStorage.removeItem(cacheKey); // clear corrupted cache
+    }
+  }
   const year = yearSelect.value;
   const category = categorySelect.value;
   const continent = continentSelect.value;
@@ -196,10 +222,20 @@ All fields are required in the output JSON.`;
     console.log('Raw AI response:', text);
     const cleaned = text.replace(/```json|```/g, '').trim();
     const data = JSON.parse(cleaned);
+    localStorage.setItem(cacheKey, JSON.stringify(data));
 
     if (!Array.isArray(data.cars)) throw new Error('Unexpected format');
 
-    resultsArea.innerHTML = data.cars.map((car, i) => renderCarCard(car, year, i === 0 ? 1 : null)).join('');
+    resultsArea.innerHTML = data.cars.map((car, i) => {
+  const html = renderCarCard(car, year, i === 0 ? 1 : null);
+  setTimeout(() => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    const tabBlock = wrapper.querySelector('#detail-tabs');
+    if (tabBlock) initializeAccessibleTabs(tabBlock);
+  }, 0);
+  return html;
+}).join('');
   } catch (err) {
     resultsArea.innerHTML = `<div class="text-red-400 text-center">Error: ${err.message}</div>`;
   }
