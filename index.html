@@ -76,14 +76,16 @@
 </main>
 
 <script>
-        // --- DOM Elements ---
+           // --- DOM Elements ---
     const resultsArea = document.getElementById('results-area');
     const yearSelect = document.getElementById('year-select');
     const categorySelect = document.getElementById('category-select');
     const continentSelect = document.getElementById('continent-select');
     const countrySelect = document.getElementById('country-select');
-    // Replace this with the URL of your deployed backend
-    const API_URL = 'http://localhost:3000/generate'; 
+    
+    // ===== THIS IS THE FIX 🎯 =====
+    // The API_URL is now pointing to your live backend server on Render.
+    const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate'; 
 
     // --- Country Data ---
     const countryData = {
@@ -116,22 +118,16 @@
             body: JSON.stringify({ prompt })
         });
 
-        // ===== THIS IS THE DEFINITIVE FRONTEND FIX 🎯 =====
-        // 1. Check if the HTTP response status is successful (e.g., 200 OK).
         if (!response.ok) {
-            // 2. If not, try to parse the body as JSON to get the server's error message.
             const errorData = await response.json();
-            // 3. Throw an error with the specific message from the server.
             throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
         }
-        // 4. Only if the response was 'ok' do we proceed to parse the body as JSON.
         return response.json();
-        // ===================================================
     }
 
     // --- Main Controller Function ---
     async function fetchAndRenderResults() {
-        resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10"><div class="loader"></div><p class="mt-4 text-slate-400">Finding influential cars...</p></div>`;
+        resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10"><div class="loader"></div><p class="mt-4 text-slate-400">Waking up server... this may take 30 seconds.</p></div>`;
         try {
             const carList = await getInfluentialCarList();
             if (!carList || carList.length === 0) {
@@ -140,7 +136,6 @@
             }
             resultsArea.innerHTML = '';
 
-            // Use Promise.all to fetch details for all cars concurrently for better performance
             const carDetailsPromises = carList.map(carName => getCarDetails(carName, yearSelect.value));
             const carDetailsResults = await Promise.all(carDetailsPromises);
 
@@ -182,7 +177,7 @@
             return null;
         } catch (err) {
             console.error(`Could not fetch details for ${carName}:`, err.message);
-            return null; // Return null so other successful calls can still render
+            return null;
         }
     }
 
