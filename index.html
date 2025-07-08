@@ -120,7 +120,8 @@ continentSelect.addEventListener('change', () => {
 continentSelect.dispatchEvent(new Event('change'));
 
 function renderCarCard(car, year, rank = null) {
-  const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(car.name + ' car')}`;
+  const imageQuery = encodeURIComponent((car.name || '') + ' ' + (car.brand || '') + ' car');
+  const imageUrl = `https://source.unsplash.com/800x600/?${imageQuery}`;
   const wikiLink = `https://en.wikipedia.org/wiki/${encodeURIComponent(car.name.replace(/ /g, '_'))}`;
   const badge = rank === 1 ? '<span class="ml-2 px-2 py-1 text-xs bg-green-500 text-black rounded-full" title="Highest sales in year">Top Seller</span>' : '';
 
@@ -183,6 +184,7 @@ async function fetchCarData() {
 
     const result = await response.json();
     const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+    console.log('Raw AI response:', text);
     const cleaned = text.replace(/```json|```/g, '').trim();
     const data = JSON.parse(cleaned);
 
