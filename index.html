@@ -76,7 +76,7 @@
 </main>
 
 <script>
-             // --- DOM Elements ---
+                // --- DOM Elements ---
     const resultsArea = document.getElementById('results-area');
     const yearSelect = document.getElementById('year-select');
     const categorySelect = document.getElementById('category-select');
@@ -111,17 +111,15 @@
 
     // --- Main API Call Logic ---
     async function makeApiCall(prompt) {
-        // ===== THIS IS THE FIX 🎯 =====
-        // Implement a 60-second timeout to handle Render's "cold start".
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 seconds
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
 
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt }),
-                signal: controller.signal // This links the fetch to our timeout controller
+                signal: controller.signal
             });
 
             if (!response.ok) {
@@ -133,30 +131,34 @@
             if (error.name === 'AbortError') {
                 throw new Error('The request timed out. The server may be starting up. Please try again in a moment.');
             }
-            throw error; // Re-throw other errors
+            throw error;
         } finally {
-            // IMPORTANT: Clear the timeout timer regardless of the outcome
             clearTimeout(timeoutId);
         }
-        // =============================
     }
 
     // --- Main Controller Function ---
     async function fetchAndRenderResults() {
+        console.log("Starting fetchAndRenderResults...");
         resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10"><div class="loader"></div><p class="mt-4 text-slate-400">Waking up server... this may take up to a minute.</p></div>`;
         try {
             const carList = await getInfluentialCarList();
+            console.log("Car list received from API:", carList);
+
             if (!carList || carList.length === 0) {
                 showError("Could not find any influential cars for this selection. The AI may not have data for these specific criteria.");
                 return;
             }
             resultsArea.innerHTML = '';
 
+            console.log("Fetching details for all cars concurrently...");
             const carDetailsPromises = carList.map(carName => getCarDetails(carName, yearSelect.value));
             const carDetailsResults = await Promise.all(carDetailsPromises);
+            console.log("All car details received:", carDetailsResults);
 
             let resultsFound = false;
-            carDetailsResults.forEach(carDetails => {
+            carDetailsResults.forEach((carDetails, index) => {
+                console.log(`Processing details for car #${index}:`, carDetails);
                 if (carDetails) {
                     const carCardHTML = renderCarCard(carDetails, yearSelect.value);
                     if (carCardHTML) {
@@ -170,11 +172,13 @@
                 }
             });
 
+            console.log(`Finished processing. Results found: ${resultsFound}`);
             if (!resultsFound) {
                 showError("Found influential cars, but could not retrieve their specific details. Please try a different selection.");
             }
 
         } catch (err) {
+            // This will now show us the exact error message that caused the failure.
             showError(err.message);
         }
     }
@@ -205,7 +209,10 @@
 
     // --- UI Rendering ---
     function renderCarCard(car, year) {
-        if (!car || typeof car.name !== 'string') return '';
+        if (!car || typeof car.name !== 'string') {
+            console.error("Render skipped: Invalid car data object received.", car);
+            return '';
+        }
         const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(`${year} ${car.name}`)}`;
         return `
         <div class="glassmorphism rounded-2xl overflow-hidden mb-8 fade-in-content">
@@ -227,7 +234,8 @@
     }
 
     function showError(message) {
-        resultsArea.innerHTML = `<div class="text-red-400 text-center glassmorphism p-8 rounded-xl"><strong>Error:</strong> ${message}</div>`;
+        console.error("An error occurred:", message); // Log the error to the console
+        resultsArea.innerHTML = `<div class="text-red-400 text-center glassmorphism p-8 rounded-xl"><strong class="block mb-2">An Error Occurred:</strong><p class="text-sm">${message}</p></div>`;
     }
 
     // --- Start the App ---
