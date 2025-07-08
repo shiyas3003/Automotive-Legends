@@ -158,22 +158,18 @@
             const continent = continentSelect.value;
             const country = countrySelect.value;
 
-            // STAGE 1: Get the list of car names
             const carList = await getInfluentialCarList(year, category, continent, country);
-
             if (!carList || carList.length === 0) {
                 showError("Could not find any influential cars for this selection. Please try different criteria.");
                 return;
             }
-            
-            resultsArea.innerHTML = ''; // Clear loader
+            resultsArea.innerHTML = '';
 
-            // STAGE 2: Get details for each car and render them one by one
             for (const carName of carList) {
                 const carDetails = await getCarDetails(carName, year);
                 if (carDetails) {
                     const carCardHTML = renderCarCard(carDetails, year, category);
-                    if (carCardHTML) { // Only append if the card HTML is not empty
+                    if (carCardHTML) {
                         const cardElement = document.createElement('div');
                         cardElement.innerHTML = carCardHTML;
                         resultsArea.appendChild(cardElement.firstChild);
@@ -197,112 +193,4 @@
             body: JSON.stringify({ prompt, generationConfig: { responseMimeType: "application/json" } })
         });
         if (!response.ok) throw new Error("API error while fetching car list.");
-
-        const result = await response.json();
-        const data = JSON.parse(result?.candidates?.[0]?.content?.parts?.[0]?.text);
-        return data.cars;
-    }
-
-    // --- STAGE 2: API Call for Specific Car Details ---
-    async function getCarDetails(carName, year) {
-        const prompt = `For the car "${carName}" from ${year}, provide a JSON object with:
-        1. A short "influence" paragraph.
-        2. A list of 3 "interesting_facts".
-        3. A list of 4 "technical_details".
-        4. "sales_figures" string for that year (global or European).
-        5. "production_numbers" string for that model year.
-        6. "original_msrp" string (in Euro if European).
-        If a specific fact cannot be found, return 'N/A' for that field.`;
-
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt, generationConfig: { responseMimeType: "application/json" } })
-            });
-            if (!response.ok) return null;
-            
-            const result = await response.json();
-            const carData = JSON.parse(result?.candidates?.[0]?.content?.parts?.[0]?.text);
-            if (carData) {
-                carData.name = carName; // Add the name back into the object
-            }
-            return carData;
-        } catch (err) {
-            console.error(`Could not fetch details for ${carName}:`, err);
-            return null;
-        }
-    }
-
-    // --- UI Rendering ---
-    function renderCarCard(car, year, category) {
-        // ===== ROBUSTNESS FIX STARTS HERE =====
-        // Check if the car object and its name are valid before proceeding.
-        if (!car || typeof car.name !== 'string') {
-            console.error("Skipping render for invalid car data:", car);
-            return ''; // Return an empty string to prevent crashing.
-        }
-        // ===== ROBUSTNESS FIX ENDS HERE =====
-
-        const imageQuery = encodeURIComponent(`${year} ${car.name} ${category}`);
-        const imageUrl = `https://source.unsplash.com/800x600/?${imageQuery}`;
-        const diagramUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(car.name + ' engine blueprint')}`;
-        const baseId = `${year}-${car.name.replace(/\s+/g, '-')}`;
-
-        return `
-        <div class="glassmorphism rounded-2xl overflow-hidden mb-8 fade-in-content">
-          <div class="grid grid-cols-1 lg:grid-cols-5">
-            <div class="lg:col-span-2">
-              <img src="${imageUrl}" alt="Photo of ${car.name}" class="w-full h-64 lg:h-full object-cover bg-black/20">
-            </div>
-            <div class="lg:col-span-3 p-6">
-              <h2 class="text-3xl font-bold text-white mb-1">${car.name} <span class="text-xl font-light text-slate-400">${year}</span></h2>
-              <p class="text-slate-300 mb-6">${car.influence || 'No influence description available.'}</p>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                <div class="stat-card"><div class="stat-label">Sales</div><div class="stat-value">${car.sales_figures || 'N/A'}</div></div>
-                <div class="stat-card"><div class="stat-label">Production</div><div class="stat-value">${car.production_numbers || 'N/A'}</div></div>
-                <div class="stat-card"><div class="stat-label">MSRP</div><div class="stat-value">${car.original_msrp || 'N/A'}</div></div>
-              </div>
-              <div class="detail-tabs-wrapper">
-                <div role="tablist" class="flex space-x-4 border-b border-[var(--border-color)] mb-4">
-                  <button role="tab" aria-selected="true" aria-controls="panel-facts-${baseId}" class="detail-tab">Facts</button>
-                  <button role="tab" aria-selected="false" aria-controls="panel-tech-${baseId}" tabindex="-1" class="detail-tab">Tech Specs</button>
-                </div>
-                <div id="panel-facts-${baseId}" role="tabpanel" class="detail-tab-panel fade-in-content">
-                  <ul class="list-disc list-inside text-slate-300 space-y-2">${(car.interesting_facts || ['No facts available.']).map(fact => `<li>${fact}</li>`).join('')}</ul>
-                </div>
-                <div id="panel-tech-${baseId}" role="tabpanel" class="detail-tab-panel" hidden>
-                  <ul class="text-slate-300 space-y-2">${(car.technical_details || ['No details available.']).map(detail => `<li class="flex items-center border-b border-transparent py-1"><strong class="w-2/5 text-slate-400">${detail.split(':')[0]}:</strong><span>${detail.split(':').slice(1).join(':').trim()}</span></li>`).join('')}</ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    function initializeAccessibleTabs(tabContainer) {
-        if (!tabContainer) return;
-        const tabs = Array.from(tabContainer.querySelectorAll('[role="tab"]'));
-        const panels = Array.from(tabContainer.querySelectorAll('[role="tabpanel"]'));
-        if (!tabs.length) return;
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                const currentTab = e.currentTarget;
-                const panelId = currentTab.getAttribute('aria-controls');
-                tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
-                currentTab.setAttribute('aria-selected', 'true');
-                panels.forEach(p => p.hidden = (p.id !== panelId));
-            });
-        });
-    }
-
-    function showError(message) {
-        resultsArea.innerHTML = `<div class="text-red-400 text-center glassmorphism p-8 rounded-xl"><strong>Error:</strong> ${message}</div>`;
-    }
-
-    // --- Start the App ---
-    initializeControls();
-</script>
-</body>
-</html>
+        const result =
