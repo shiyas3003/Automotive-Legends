@@ -112,9 +112,17 @@
             for (const carName of carList) {
                 const carDetails = await getCarDetails(carName, yearSelect.value);
                 if (carDetails) {
+                    const carCardHTML = renderCarCard(carDetails, yearSelect.value);
                     const cardElement = document.createElement('div');
-                    cardElement.innerHTML = renderCarCard(carDetails, yearSelect.value);
-                    resultsArea.appendChild(cardElement.firstChild);
+                    cardElement.innerHTML = carCardHTML;
+                    
+                    // ===== ROBUSTNESS FIX STARTS HERE =====
+                    // This check ensures we only append a valid HTML element.
+                    // If carCardHTML was empty, cardElement.firstChild would be null.
+                    if (cardElement.firstChild) {
+                        resultsArea.appendChild(cardElement.firstChild);
+                    }
+                    // ===== ROBUSTNESS FIX ENDS HERE =====
                 }
             }
         } catch (err) { showError(err.message); }
@@ -135,8 +143,6 @@
     }
 
     async function getCarDetails(carName, year) {
-        // This is the new, more powerful prompt.
-        // It instructs the AI to USE A TOOL (like web search) to find the data.
         const prompt = `For the car "${carName} ${year}", use a search tool to find its:
         1. MSRP for the Irish market in Euro (€).
         2. Recent sales figures in Europe.
@@ -164,7 +170,9 @@
     }
 
     function renderCarCard(car, year) {
-        if (!car || typeof car.name !== 'string') return '';
+        if (!car || typeof car.name !== 'string') {
+            return ''; // Return empty string to prevent invalid data from rendering
+        }
 
         const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(`${year} ${car.name}`)}`;
         return `
