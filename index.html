@@ -134,10 +134,11 @@
 
     // --- Initial Setup ---
     function initializeControls() {
-        for (let year = new Date().getFullYear() + 1; year >= 1950; year--) {
+        for (let year = new Date().getFullYear(); year >= 1950; year--) {
             const opt = document.createElement('option');
             opt.value = year;
             opt.textContent = year;
+            if (year === new Date().getFullYear()) opt.selected = true;
             yearSelect.appendChild(opt);
         }
         continentSelect.addEventListener('change', () => {
@@ -172,11 +173,12 @@
                 const carDetails = await getCarDetails(carName, year);
                 if (carDetails) {
                     const carCardHTML = renderCarCard(carDetails, year, category);
-                    const cardElement = document.createElement('div');
-                    cardElement.innerHTML = carCardHTML;
-                    resultsArea.appendChild(cardElement.firstChild);
-                    // Initialize tabs for the newly added card
-                    initializeAccessibleTabs(cardElement.querySelector('.detail-tabs-wrapper'));
+                    if (carCardHTML) { // Only append if the card HTML is not empty
+                        const cardElement = document.createElement('div');
+                        cardElement.innerHTML = carCardHTML;
+                        resultsArea.appendChild(cardElement.firstChild);
+                        initializeAccessibleTabs(cardElement.querySelector('.detail-tabs-wrapper'));
+                    }
                 }
             }
         } catch (err) {
@@ -198,7 +200,7 @@
 
         const result = await response.json();
         const data = JSON.parse(result?.candidates?.[0]?.content?.parts?.[0]?.text);
-        return data.cars; // Should return an array like ["Toyota Prius", "BMW M3"]
+        return data.cars;
     }
 
     // --- STAGE 2: API Call for Specific Car Details ---
@@ -218,20 +220,30 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt, generationConfig: { responseMimeType: "application/json" } })
             });
-            if (!response.ok) return null; // Don't let one failure stop the whole process
+            if (!response.ok) return null;
             
             const result = await response.json();
             const carData = JSON.parse(result?.candidates?.[0]?.content?.parts?.[0]?.text);
-            carData.name = carName; // Add the name back into the object
+            if (carData) {
+                carData.name = carName; // Add the name back into the object
+            }
             return carData;
         } catch (err) {
             console.error(`Could not fetch details for ${carName}:`, err);
-            return null; // Return null on error to continue the loop
+            return null;
         }
     }
 
     // --- UI Rendering ---
     function renderCarCard(car, year, category) {
+        // ===== ROBUSTNESS FIX STARTS HERE =====
+        // Check if the car object and its name are valid before proceeding.
+        if (!car || typeof car.name !== 'string') {
+            console.error("Skipping render for invalid car data:", car);
+            return ''; // Return an empty string to prevent crashing.
+        }
+        // ===== ROBUSTNESS FIX ENDS HERE =====
+
         const imageQuery = encodeURIComponent(`${year} ${car.name} ${category}`);
         const imageUrl = `https://source.unsplash.com/800x600/?${imageQuery}`;
         const diagramUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(car.name + ' engine blueprint')}`;
