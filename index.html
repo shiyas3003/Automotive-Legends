@@ -1,16 +1,4 @@
-Of course. Here is the complete code with the more reliable, two-stage "hybrid" architecture implemented.
 
-The key changes are in the `<script>` section. I've broken the single `fetchCarData` function into three distinct parts:
-
-1.  `fetchAndRenderResults()`: The new main controller that manages the process.
-2.  `getInfluentialCarList()`: **Stage 1**, which just gets a list of car names.
-3.  `getCarDetails()`: **Stage 2**, which loops through the names and gets the specific stats for each one.
-
-This new structure is more robust and should solve the problem of missing data.
-
------
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -307,4 +295,4 @@ This new structure is more robust and should solve the problem of missing data.
 </script>
 </body>
 </html>
-```
+
