@@ -118,139 +118,179 @@
 </main>
 
 <script>
-// NOTE: The JavaScript from the original file is lengthy.
-// It has been omitted here for brevity but should be included for the page to function.
-// All functionality for fetching data and rendering cards remains the same.
-const resultsArea = document.getElementById('results-area');
-const yearSelect = document.getElementById('year-select');
-const categorySelect = document.getElementById('category-select');
-const continentSelect = document.getElementById('continent-select');
-const countrySelect = document.getElementById('country-select');
+    const resultsArea = document.getElementById('results-area');
+    const yearSelect = document.getElementById('year-select');
+    const categorySelect = document.getElementById('category-select');
+    const continentSelect = document.getElementById('continent-select');
+    const countrySelect = document.getElementById('country-select');
 
-const countryData = {
-  'Any': ['Any'],
-  'Europe': ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden'],
-  'Asia': ['Any', 'Japan', 'South Korea'],
-  'North America': ['Any', 'United States']
-};
+    const countryData = {
+        'Any': ['Any'],
+        'Europe': ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden'],
+        'Asia': ['Any', 'Japan', 'South Korea'],
+        'North America': ['Any', 'United States']
+    };
 
-for (let year = new Date().getFullYear(); year >= 1950; year--) {
-  const opt = document.createElement('option');
-  opt.value = year;
-  opt.textContent = year;
-  yearSelect.appendChild(opt);
-}
+    // --- POPULATE INITIAL CONTROLS ---
+    for (let year = new Date().getFullYear(); year >= 1950; year--) {
+        const opt = document.createElement('option');
+        opt.value = year;
+        opt.textContent = year;
+        yearSelect.appendChild(opt);
+    }
 
-continentSelect.addEventListener('change', () => {
-  const countries = countryData[continentSelect.value] || ['Any'];
-  countrySelect.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
-});
-continentSelect.dispatchEvent(new Event('change'));
-
-function initializeAccessibleTabs(tabContainer) {
-  const tabs = Array.from(tabContainer.querySelectorAll('[role="tab"]'));
-  tabs.forEach(tab => {
-    tab.addEventListener('click', (e) => {
-      const currentTab = e.currentTarget;
-      const panelId = currentTab.getAttribute('aria-controls');
-      tabs.forEach(t => {
-        t.setAttribute('aria-selected', 'false');
-        t.setAttribute('tabindex', '-1');
-      });
-      currentTab.setAttribute('aria-selected', 'true');
-      currentTab.removeAttribute('tabindex');
-      Array.from(tabContainer.querySelectorAll('[role="tabpanel"]')).forEach(p => {
-        p.hidden = (p.id !== panelId);
-        p.classList.remove('fade-in-content');
-        if (p.id === panelId) p.classList.add('fade-in-content');
-      });
+    continentSelect.addEventListener('change', () => {
+        const countries = countryData[continentSelect.value] || ['Any'];
+        countrySelect.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
     });
-  });
-}
+    continentSelect.dispatchEvent(new Event('change'));
+    // --- END INITIAL CONTROLS ---
 
-function renderCarCard(car, year) {
-  const imageQuery = encodeURIComponent(`${year} ${car.name}`);
-  const imageUrl = `https://source.unsplash.com/800x600/?${imageQuery}`;
-  const diagramUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(car.name + ' engine blueprint')}`;
 
-  return `
-<div class="glassmorphism rounded-2xl overflow-hidden mb-8 fade-in-content">
-  <div class="grid grid-cols-1 lg:grid-cols-5">
-    <div class="lg:col-span-2">
-      <img src="${imageUrl}" alt="Photo of ${car.name}" class="w-full h-64 lg:h-full object-cover">
-    </div>
-    <div class="lg:col-span-3 p-6">
-      <h2 class="text-3xl font-bold text-white mb-1">${car.name} <span class="text-xl font-light text-slate-400">${year}</span></h2>
-      <p class="text-slate-300 mb-6">${car.influence}</p>
+    function initializeAccessibleTabs(tabContainer) {
+        const tabs = Array.from(tabContainer.querySelectorAll('[role="tab"]'));
+        const panels = Array.from(tabContainer.querySelectorAll('[role="tabpanel"]'));
+        if (!tabs.length) return;
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="stat-card"><div class="stat-label">Sales</div><div class="stat-value">${car.sales_figures || 'N/A'}</div></div>
-        <div class="stat-card"><div class="stat-label">Production</div><div class="stat-value">${car.production_numbers || 'N/A'}</div></div>
-        <div class="stat-card"><div class="stat-label">MSRP</div><div class="stat-value">${car.original_msrp || 'N/A'}</div></div>
-      </div>
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const currentTab = e.currentTarget;
+                const panelId = currentTab.getAttribute('aria-controls');
 
-      <div class="detail-tabs-wrapper">
-        <div role="tablist" class="flex space-x-4 border-b border-[var(--border-color)] mb-4">
-          <button role="tab" aria-selected="true" aria-controls="panel-facts-${year}-${car.name}" class="detail-tab">Facts</button>
-          <button role="tab" aria-selected="false" aria-controls="panel-tech-${year}-${car.name}" tabindex="-1" class="detail-tab">Tech Specs</button>
-          <button role="tab" aria-selected="false" aria-controls="panel-diagram-${year}-${car.name}" tabindex="-1" class="detail-tab">Diagram</button>
-        </div>
-        <div id="panel-facts-${year}-${car.name}" role="tabpanel" class="detail-tab-panel fade-in-content">
-          <ul class="list-disc list-inside text-slate-300 space-y-2">${(car.interesting_facts || []).map(fact => `<li>${fact}</li>`).join('')}</ul>
-        </div>
-        <div id="panel-tech-${year}-${car.name}" role="tabpanel" class="detail-tab-panel" hidden>
-          <ul class="text-slate-300 space-y-2">${(car.technical_details || []).map(detail => `<li class="flex items-center border-b border-transparent py-1"><strong class="w-2/5 text-slate-400">${detail.split(':')[0]}:</strong><span>${detail.split(':').slice(1).join(':').trim()}</span></li>`).join('')}</ul>
-        </div>
-        <div id="panel-diagram-${year}-${car.name}" role="tabpanel" class="detail-tab-panel" hidden>
-          <div class="relative rounded-lg w-full h-64 bg-black/20 border border-[var(--border-color)]"><img src="${diagramUrl}" class="w-full h-full object-contain rounded-lg p-2" alt="${car.name} diagram"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>`;
-}
+                tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+                currentTab.setAttribute('aria-selected', 'true');
 
-async function fetchCarData() {
-  const year = yearSelect.value;
-  const category = categorySelect.value;
-  const continent = continentSelect.value;
-  const country = countrySelect.value;
+                panels.forEach(p => {
+                    p.hidden = (p.id !== panelId);
+                    if (p.id === panelId) {
+                        p.classList.add('fade-in-content');
+                    } else {
+                        p.classList.remove('fade-in-content');
+                    }
+                });
+            });
+        });
+    }
 
-  const locationPrompt = country !== 'Any' ? `from ${country}` : (continent !== 'Any' ? `from ${continent}` : 'from anywhere in the world');
-  const prompt = `Generate a list of the top 3 most influential ${category} vehicles ${locationPrompt} for the year ${year}. Provide name, a short paragraph on its influence, 3 interesting facts, 4 technical details, sales_figures, production_numbers, and original_msrp.`;
+    function renderCarCard(car, year, category) {
+        // More specific image query to improve results
+        const imageQuery = encodeURIComponent(`${year} ${car.name} ${category}`);
+        const imageUrl = `https://source.unsplash.com/800x600/?${imageQuery}`;
+        const diagramUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(car.name + ' engine blueprint')}`;
 
-  resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10"><div class="loader"></div><p class="mt-4 text-slate-400">Scanning the archives for ${year}...</p></div>`;
+        // Unique IDs for tab controls to avoid conflicts
+        const baseId = `${year}-${car.name.replace(/\s+/g, '-')}`;
 
-  try {
-    const response = await fetch('https://gemini-backend-1eb3.onrender.com/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        prompt,
-        generationConfig: { responseMimeType: "application/json" }
-      })
-    });
-    if (!response.ok) throw new Error(`API error: ${response.status}`);
-    const result = await response.json();
-    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-    const cleaned = text.replace(/```json|```/g, '').trim();
-    const data = JSON.parse(cleaned);
+        return `
+        <div class="glassmorphism rounded-2xl overflow-hidden mb-8 fade-in-content">
+          <div class="grid grid-cols-1 lg:grid-cols-5">
+            <div class="lg:col-span-2">
+              <img src="${imageUrl}" alt="Photo of ${car.name}" class="w-full h-64 lg:h-full object-cover bg-black/20">
+            </div>
+            <div class="lg:col-span-3 p-6">
+              <h2 class="text-3xl font-bold text-white mb-1">${car.name} <span class="text-xl font-light text-slate-400">${year}</span></h2>
+              <p class="text-slate-300 mb-6">${car.influence}</p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="stat-card"><div class="stat-label">Sales</div><div class="stat-value">${car.sales_figures || 'N/A'}</div></div>
+                <div class="stat-card"><div class="stat-label">Production</div><div class="stat-value">${car.production_numbers || 'N/A'}</div></div>
+                <div class="stat-card"><div class="stat-label">MSRP</div><div class="stat-value">${car.original_msrp || 'N/A'}</div></div>
+              </div>
+              <div class="detail-tabs-wrapper">
+                <div role="tablist" class="flex space-x-4 border-b border-[var(--border-color)] mb-4">
+                  <button role="tab" aria-selected="true" aria-controls="panel-facts-${baseId}" class="detail-tab">Facts</button>
+                  <button role="tab" aria-selected="false" aria-controls="panel-tech-${baseId}" tabindex="-1" class="detail-tab">Tech Specs</button>
+                  <button role="tab" aria-selected="false" aria-controls="panel-diagram-${baseId}" tabindex="-1" class="detail-tab">Diagram</button>
+                </div>
+                <div id="panel-facts-${baseId}" role="tabpanel" class="detail-tab-panel fade-in-content">
+                  <ul class="list-disc list-inside text-slate-300 space-y-2">${(car.interesting_facts || []).map(fact => `<li>${fact}</li>`).join('')}</ul>
+                </div>
+                <div id="panel-tech-${baseId}" role="tabpanel" class="detail-tab-panel" hidden>
+                  <ul class="text-slate-300 space-y-2">${(car.technical_details || []).map(detail => `<li class="flex items-center border-b border-transparent py-1"><strong class="w-2/5 text-slate-400">${detail.split(':')[0]}:</strong><span>${detail.split(':').slice(1).join(':').trim()}</span></li>`).join('')}</ul>
+                </div>
+                <div id="panel-diagram-${baseId}" role="tabpanel" class="detail-tab-panel" hidden>
+                  <div class="relative rounded-lg w-full h-64 bg-black/20 border border-[var(--border-color)]"><img src="${diagramUrl}" class="w-full h-full object-contain rounded-lg p-2" alt="${car.name} diagram"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
 
-    if (!data.cars || !Array.isArray(data.cars)) throw new Error('Received invalid data format from API.');
-    
-    resultsArea.innerHTML = data.cars.map(car => renderCarCard(car, year)).join('');
-    
-    // Initialize tabs for each newly created card
-    document.querySelectorAll('.detail-tabs-wrapper').forEach(initializeAccessibleTabs);
+    async function fetchCarData() {
+        const year = yearSelect.value;
+        const category = categorySelect.value;
+        const continent = continentSelect.value;
+        const country = countrySelect.value;
 
-  } catch (err) {
-    resultsArea.innerHTML = `<div class="text-red-400 text-center glassmorphism p-8 rounded-xl"><strong>Error:</strong> ${err.message}. Please try a different selection or try again later.</div>`;
-    console.error(err);
-  }
-}
+        const locationPrompt = country !== 'Any' ? `from ${country}` : (continent !== 'Any' ? `from ${continent}` : 'from anywhere in the world');
+        
+        // A more detailed and structured prompt
+        const prompt = `Generate a list of the top 3 most influential ${category} vehicles ${locationPrompt} for the year ${year}. For each vehicle, provide its name, a short paragraph on its influence, a list of 3 interesting facts, a list of 4 key technical details, its approximate sales figures for that year, its total production numbers for that model year, and its original MSRP in USD. Ensure all fields are included for every car.`;
 
-// Initial fetch on page load
-fetchCarData();
+        resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10"><div class="loader"></div><p class="mt-4 text-slate-400">Scanning the archives for ${year}...</p></div>`;
+
+        try {
+            // Re-introducing the schema to enforce the AI's output structure
+            const response = await fetch('https://gemini-backend-1eb3.onrender.com/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "cars": {
+                                    type: "ARRAY",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            "name": { "type": "STRING" },
+                                            "influence": { "type": "STRING" },
+                                            "interesting_facts": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                            "technical_details": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                            "sales_figures": { "type": "STRING" },
+                                            "production_numbers": { "type": "STRING" },
+                                            "original_msrp": { "type": "STRING" }
+                                        },
+                                        required: ["name", "influence", "interesting_facts", "technical_details", "sales_figures", "production_numbers", "original_msrp"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+            });
+
+            if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`);
+            
+            const result = await response.json();
+            const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            if (!text) {
+                throw new Error("Received an empty response from the API.");
+            }
+
+            const data = JSON.parse(text);
+
+            if (!data.cars || !Array.isArray(data.cars) || data.cars.length === 0) {
+                 throw new Error('No valid car data was returned. The AI might not have information for this specific selection.');
+            }
+
+            resultsArea.innerHTML = data.cars.map(car => renderCarCard(car, year, category)).join('');
+            
+            // Initialize tabs for each newly created card
+            document.querySelectorAll('.detail-tabs-wrapper').forEach(initializeAccessibleTabs);
+
+        } catch (err) {
+            resultsArea.innerHTML = `<div class="text-red-400 text-center glassmorphism p-8 rounded-xl"><strong>Error:</strong> ${err.message}. Please try a different selection or try again.</div>`;
+            console.error(err);
+        }
+    }
+
+    // Initial fetch on page load
+    fetchCarData();
 </script>
 </body>
 </html>
