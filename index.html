@@ -1,124 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Automotive Legacy Explorer</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-color: #0d1117;
-      --primary-text: #e6edf3;
-      --secondary-text: #7d8590;
-      --accent-color: #22d3ee;
-      --accent-glow: rgba(34, 211, 238, 0.3);
-      --border-color: rgba(255, 255, 255, 0.1);
-      --card-bg: rgba(22, 27, 34, 0.6);
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--primary-text);
-      background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
-      background-size: 2rem 2rem;
-    }
-    .glassmorphism {
-        background-color: var(--card-bg);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid var(--border-color);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automotive Legacy Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0d1117; --primary-text: #e6edf3; --secondary-text: #7d8590;
+      --accent-color: #22d3ee; --accent-glow: rgba(34, 211, 238, 0.3);
+      --border-color: rgba(255, 255, 255, 0.1); --card-bg: rgba(22, 27, 34, 0.6);
     }
-    .stat-card {
-      background: rgba(0,0,0,0.2);
-      border-radius: 12px;
-      padding: 1rem;
-      text-align: center;
-      border: 1px solid var(--border-color);
-    }
-    .stat-card .stat-label {
-      color: var(--secondary-text);
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-    }
-    .stat-card .stat-value {
-      color: var(--accent-color);
-      font-size: 1.75rem;
-      font-weight: 700;
-    }
-    .loader {
-    border: 4px solid var(--border-color);
-    border-top-color: var(--accent-color);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  .detail-tab { transition: all 0.2s ease; color: var(--secondary-text); border-bottom: 2px solid transparent; padding: 8px 4px; font-weight: 500;}
-  .detail-tab[aria-selected="true"] { color: var(--accent-color); border-bottom-color: var(--accent-color); font-weight: 600; text-shadow: 0 0 8px var(--accent-glow); }
-  .detail-tab-panel[hidden] { display: none; }
-  .fade-in-content { animation: fade-in-up 0.5s ease-out; }
-  @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
-</style>
+    body {
+      font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--primary-text);
+      background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+      background-size: 2rem 2rem;
+    }
+    .glassmorphism {
+      background-color: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .stat-card {
+      background: rgba(0,0,0,0.2); border-radius: 12px; padding: 1rem;
+      text-align: center; border: 1px solid var(--border-color);
+    }
+    .stat-card .stat-label { color: var(--secondary-text); font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .stat-card .stat-value { color: var(--accent-color); font-size: 1.75rem; font-weight: 700; }
+    .loader {
+      border: 4px solid var(--border-color); border-top-color: var(--accent-color); border-radius: 50%;
+      width: 40px; height: 40px; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .fade-in-content { animation: fade-in-up 0.5s ease-out; }
+    @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+  </style>
 </head>
 <body class="min-h-screen">
 
 <header class="relative h-64 bg-cover bg-center text-white" style="background-image: url('https://source.unsplash.com/1600x900/?classic-car');">
-  <div class="bg-black bg-opacity-60 h-full flex flex-col justify-center items-center">
-    <h1 class="text-5xl font-bold drop-shadow-md">Automotive Legacy</h1>
-    <p class="mt-2 text-lg text-slate-200">Explore the most influential cars in history</p>
-  </div>
+  <div class="bg-black bg-opacity-60 h-full flex flex-col justify-center items-center">
+    <h1 class="text-5xl font-bold drop-shadow-md">Automotive Legacy</h1>
+    <p class="mt-2 text-lg text-slate-200">Explore the most influential cars in history</p>
+  </div>
 </header>
 
 <main class="container mx-auto px-4 py-8">
   <div class="glassmorphism p-6 rounded-2xl mb-10">
     <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
-      
       <div class="flex flex-col gap-2">
         <label for="year-select" class="text-sm font-medium text-slate-300">Year</label>
         <select id="year-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
       </div>
-
       <div class="flex flex-col gap-2">
         <label for="category-select" class="text-sm font-medium text-slate-300">Category</label>
         <select id="category-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
-          <option>Road Cars</option>
-          <option>F1</option>
-          <option>Rally</option>
+          <option>Road Cars</option><option>F1</option><option>Rally</option>
         </select>
       </div>
-
       <div class="flex flex-col gap-2">
         <label for="continent-select" class="text-sm font-medium text-slate-300">Continent</label>
         <select id="continent-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
-          <option>Any</option>
-          <option>Europe</option>
-          <option>Asia</option>
-          <option>North America</option>
+          <option>Any</option><option>Europe</option><option>Asia</option><option>North America</option>
         </select>
       </div>
-
       <div class="flex flex-col gap-2">
         <label for="country-select" class="text-sm font-medium text-slate-300">Country</label>
         <select id="country-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
       </div>
-
       <button onclick="fetchAndRenderResults()" class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:scale-105 transition">Search</button>
-
     </div>
   </div>
 
-  <div id="results-area">
-      </div>
+  <div id="results-area"></div>
 </main>
 
 <script>
-    // --- DOM Elements ---
     const resultsArea = document.getElementById('results-area');
     const yearSelect = document.getElementById('year-select');
     const categorySelect = document.getElementById('category-select');
@@ -126,71 +83,114 @@
     const countrySelect = document.getElementById('country-select');
     const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate';
 
-    // --- Country Data ---
-    const countryData = {
-        'Any': ['Any'], 'Europe': ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden'],
-        'Asia': ['Any', 'Japan', 'South Korea'], 'North America': ['Any', 'United States']
-    };
+    const countryData = { 'Any': ['Any'], 'Europe': ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden'], 'Asia': ['Any', 'Japan', 'South Korea'], 'North America': ['Any', 'United States'] };
 
-    // --- Initial Setup ---
     function initializeControls() {
         for (let year = new Date().getFullYear(); year >= 1950; year--) {
             const opt = document.createElement('option');
-            opt.value = year;
-            opt.textContent = year;
+            opt.value = year; opt.textContent = year;
             if (year === new Date().getFullYear()) opt.selected = true;
             yearSelect.appendChild(opt);
         }
         continentSelect.addEventListener('change', () => {
-            const countries = countryData[continentSelect.value] || ['Any'];
-            countrySelect.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
+            countrySelect.innerHTML = (countryData[continentSelect.value] || ['Any']).map(c => `<option value="${c}">${c}</option>`).join('');
         });
         continentSelect.dispatchEvent(new Event('change'));
-        fetchAndRenderResults(); // Initial fetch on page load
+        fetchAndRenderResults();
     }
 
-    // --- Main Controller Function ---
     async function fetchAndRenderResults() {
         resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10"><div class="loader"></div><p class="mt-4 text-slate-400">Finding influential cars...</p></div>`;
         try {
-            const year = yearSelect.value;
-            const category = categorySelect.value;
-            const continent = continentSelect.value;
-            const country = countrySelect.value;
-
-            const carList = await getInfluentialCarList(year, category, continent, country);
-            if (!carList || carList.length === 0) {
-                showError("Could not find any influential cars for this selection. Please try different criteria.");
+            const carList = await getInfluentialCarList();
+            if (!carList) {
+                showError("Could not find any influential cars for this selection.");
                 return;
             }
             resultsArea.innerHTML = '';
 
             for (const carName of carList) {
-                const carDetails = await getCarDetails(carName, year);
+                const carDetails = await getCarDetails(carName, yearSelect.value);
                 if (carDetails) {
-                    const carCardHTML = renderCarCard(carDetails, year, category);
-                    if (carCardHTML) {
-                        const cardElement = document.createElement('div');
-                        cardElement.innerHTML = carCardHTML;
-                        resultsArea.appendChild(cardElement.firstChild);
-                        initializeAccessibleTabs(cardElement.querySelector('.detail-tabs-wrapper'));
-                    }
+                    const cardElement = document.createElement('div');
+                    cardElement.innerHTML = renderCarCard(carDetails, yearSelect.value);
+                    resultsArea.appendChild(cardElement.firstChild);
                 }
             }
+        } catch (err) { showError(err.message); }
+    }
+
+    async function getInfluentialCarList() {
+        const locationPrompt = countrySelect.value !== 'Any' ? `from ${countrySelect.value}` : (continentSelect.value !== 'Any' ? `from ${continentSelect.value}` : 'from anywhere');
+        const prompt = `Generate a JSON object with a single key "cars" containing an array of 3 influential ${categorySelect.value} names ${locationPrompt} for the year ${yearSelect.value}.`;
+        
+        const response = await fetch(API_URL, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, generationConfig: { responseMimeType: "application/json" } })
+        });
+        if (!response.ok) throw new Error("API error fetching car list.");
+        const result = await response.json();
+        const data = JSON.parse(result?.candidates?.[0]?.content?.parts?.[0]?.text);
+        return data?.cars;
+    }
+
+    async function getCarDetails(carName, year) {
+        // This is the new, more powerful prompt.
+        // It instructs the AI to USE A TOOL (like web search) to find the data.
+        const prompt = `For the car "${carName} ${year}", use a search tool to find its:
+        1. MSRP for the Irish market in Euro (€).
+        2. Recent sales figures in Europe.
+        3. Global production numbers for that model year.
+        Return a single, flat JSON object with the keys "msrp", "sales", "production", and a short "influence" summary. If a value cannot be found, the field should contain 'N/A'.`;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, generationConfig: { responseMimeType: "application/json" } })
+            });
+            if (!response.ok) return null;
+            
+            const result = await response.json();
+            const carData = JSON.parse(result?.candidates?.[0]?.content?.parts?.[0]?.text);
+            if (carData) {
+                carData.name = carName;
+                return carData;
+            }
+            return null;
         } catch (err) {
-            showError(err.message);
+            console.error(`Could not fetch details for ${carName}:`, err);
+            return null;
         }
     }
 
-    // --- STAGE 1: API Call for Car List ---
-    async function getInfluentialCarList(year, category, continent, country) {
-        const locationPrompt = country !== 'Any' ? `from ${country}` : (continent !== 'Any' ? `from ${continent}` : 'from anywhere');
-        const prompt = `Generate a JSON object with a single key "cars" containing an array of 3 influential ${category} names ${locationPrompt} for the year ${year}.`;
-        
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, generationConfig: { responseMimeType: "application/json" } })
-        });
-        if (!response.ok) throw new Error("API error while fetching car list.");
-        const result =
+    function renderCarCard(car, year) {
+        if (!car || typeof car.name !== 'string') return '';
+
+        const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(`${year} ${car.name}`)}`;
+        return `
+        <div class="glassmorphism rounded-2xl overflow-hidden mb-8 fade-in-content">
+          <div class="grid grid-cols-1 lg:grid-cols-5">
+            <div class="lg:col-span-2">
+              <img src="${imageUrl}" alt="Photo of ${car.name}" class="w-full h-64 lg:h-full object-cover bg-black/20">
+            </div>
+            <div class="lg:col-span-3 p-6">
+              <h2 class="text-3xl font-bold text-white mb-1">${car.name} <span class="text-xl font-light text-slate-400">${year}</span></h2>
+              <p class="text-slate-300 mb-6">${car.influence || 'No influence description available.'}</p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="stat-card"><div class="stat-label">Sales</div><div class="stat-value">${car.sales || 'N/A'}</div></div>
+                <div class="stat-card"><div class="stat-label">Production</div><div class="stat-value">${car.production || 'N/A'}</div></div>
+                <div class="stat-card"><div class="stat-label">MSRP</div><div class="stat-value">${car.msrp || 'N/A'}</div></div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function showError(message) {
+        resultsArea.innerHTML = `<div class="text-red-400 text-center glassmorphism p-8 rounded-xl"><strong>Error:</strong> ${message}</div>`;
+    }
+
+    initializeControls();
+</script>
+</body>
+</html>
