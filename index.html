@@ -14,7 +14,7 @@
       --accent-color: #22d3ee; 
       --accent-glow: rgba(34, 211, 238, 0.3);
       --border-color: rgba(255, 255, 255, 0.1); 
-      --card-bg: rgba(22, 27, 34, 0.6);
+      --card-bg: rgba(22, 27, 34, 0.9); /* increased opacity */
     }
     body {
       font-family: 'Inter', sans-serif; 
@@ -73,7 +73,7 @@
 <header class="relative h-64 bg-cover bg-center text-white" style="background-image: url('https://source.unsplash.com/1600x900/?classic-car');">
   <div class="bg-black bg-opacity-60 h-full flex flex-col justify-center items-center">
     <h1 class="text-5xl font-bold drop-shadow-md">Automotive Legacy</h1>
-    <p class="mt-2 text-lg text-slate-200">Explore the most influential cars in history</p>
+    <p class="mt-2 text-lg text-gray-200">Explore the most influential cars in history</p>
   </div>
 </header>
 
@@ -81,11 +81,11 @@
   <div class="glassmorphism p-6 rounded-2xl mb-10">
     <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
       <div class="flex flex-col gap-2">
-        <label for="year-select" class="text-sm font-medium text-slate-300">Year</label>
+        <label for="year-select" class="text-sm font-medium text-gray-300">Year</label>
         <select id="year-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
       </div>
       <div class="flex flex-col gap-2">
-        <label for="category-select" class="text-sm font-medium text-slate-300">Category</label>
+        <label for="category-select" class="text-sm font-medium text-gray-300">Category</label>
         <select id="category-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
           <option>Road Cars</option>
           <option>F1</option>
@@ -93,7 +93,7 @@
         </select>
       </div>
       <div class="flex flex-col gap-2">
-        <label for="continent-select" class="text-sm font-medium text-slate-300">Continent</label>
+        <label for="continent-select" class="text-sm font-medium text-gray-300">Continent</label>
         <select id="continent-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
           <option>Any</option>
           <option>Europe</option>
@@ -102,7 +102,7 @@
         </select>
       </div>
       <div class="flex flex-col gap-2">
-        <label for="country-select" class="text-sm font-medium text-slate-300">Country</label>
+        <label for="country-select" class="text-sm font-medium text-gray-300">Country</label>
         <select id="country-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
       </div>
       <button onclick="fetchAndRenderResults()" class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:scale-105 transition">Search</button>
@@ -119,42 +119,36 @@
   const categorySelect = document.getElementById('category-select');
   const continentSelect = document.getElementById('continent-select');
   const countrySelect = document.getElementById('country-select');
-  
-  const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate'; 
+
+  // Update this to your actual backend URL
+  const API_URL = 'http://localhost:3000/generate'; 
 
   // --- Country Data ---
   const countryData = {
-    'Any': ['Any'], 
+    'Any': ['Any'],
     'Europe': ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden'],
-    'Asia': ['Any', 'Japan', 'South Korea'], 
+    'Asia': ['Any', 'Japan', 'South Korea'],
     'North America': ['Any', 'United States']
   };
 
   // --- Initial Setup ---
   function initializeControls() {
-    // Populate year select from current year down to 1950
-    const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year >= 1950; year--) {
+    for (let year = new Date().getFullYear(); year >= 1950; year--) {
       const opt = document.createElement('option');
       opt.value = year;
       opt.textContent = year;
-      if (year === currentYear) opt.selected = true;
+      if (year === new Date().getFullYear()) opt.selected = true;
       yearSelect.appendChild(opt);
     }
-
     continentSelect.addEventListener('change', () => {
       const countries = countryData[continentSelect.value] || ['Any'];
       countrySelect.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
     });
-
-    // Trigger initial population of country select
     continentSelect.dispatchEvent(new Event('change'));
-
-    // Initial fetch of results
     fetchAndRenderResults();
   }
 
-  // --- API call with timeout ---
+  // --- Main API Call Logic ---
   async function makeApiCall(prompt) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000);
@@ -184,28 +178,26 @@
 
   // --- Main Controller Function ---
   async function fetchAndRenderResults() {
-    resultsArea.innerHTML = `
-      <div class="flex flex-col items-center justify-center text-center py-10">
-        <div class="loader"></div>
-        <p class="mt-4 text-slate-400">Waking up server... this may take up to a minute.</p>
-      </div>`;
+    resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10">
+      <div class="loader"></div>
+      <p class="mt-4 text-gray-400">Waking up server... this may take up to a minute.</p>
+    </div>`;
 
     try {
       const carList = await getInfluentialCarList();
 
       if (!carList || carList.length === 0) {
-        showError("Could not find any influential cars for this selection. The AI may not have data for these specific criteria.");
+        showError("Could not find any influential cars for this selection. Try different filters.");
         return;
       }
-
       resultsArea.innerHTML = '';
 
       const carDetailsPromises = carList.map(carName => getCarDetails(carName, yearSelect.value));
       const carDetailsResults = await Promise.all(carDetailsPromises);
 
       let resultsFound = false;
-      carDetailsResults.forEach(carDetails => {
-        if (carDetails) {
+      carDetailsResults.forEach((carDetails) => {
+        if (carDetails && carDetails.influence && carDetails.influence !== 'N/A') {
           const carCardHTML = renderCarCard(carDetails, yearSelect.value);
           if (carCardHTML) {
             resultsFound = true;
@@ -219,8 +211,9 @@
       });
 
       if (!resultsFound) {
-        showError("Found influential cars, but could not retrieve their specific details. Please try a different selection.");
+        showError("No detailed data found for the selected filters.");
       }
+
     } catch (err) {
       showError(err.message);
     }
@@ -228,25 +221,35 @@
 
   // --- Stage 1: Get Car List ---
   async function getInfluentialCarList() {
-    let locationPrompt = 'from anywhere';
-    if (countrySelect.value !== 'Any') {
-      locationPrompt = `from ${countrySelect.value}`;
-    } else if (continentSelect.value !== 'Any') {
-      locationPrompt = `from ${continentSelect.value}`;
-    }
-    const prompt = `Generate a JSON object with a single key "cars" containing an array of 3 influential ${categorySelect.value} names ${locationPrompt} for the year ${yearSelect.value}.`;
-    const data = await makeApiCall(prompt);
-    return data?.cars;
+    const locationPrompt = countrySelect.value !== 'Any'
+      ? `from ${countrySelect.value}`
+      : (continentSelect.value !== 'Any' ? `from ${continentSelect.value}` : 'from anywhere');
+
+    const prompt = `Generate a JSON object with a single key "cars" containing an array of 3 influential ${categorySelect.value} car names ${locationPrompt} for the year ${yearSelect.value}. Return only valid JSON without extra text.`;
+
+    return await makeApiCall(prompt);
   }
 
   // --- Stage 2: Get Car Details ---
   async function getCarDetails(carName, year) {
-    const prompt = `For the car "${carName} ${year}", find the following information:
-1. A short "influence" summary.
-2. Its "msrp" (original Manufacturer's Suggested Retail Price in its primary market).
-3. Its "sales" figures (any notable or approximate sales data).
-4. Its "production" numbers (any notable or approximate production data).
-Return a single, flat JSON object with these keys. If a value cannot be found, the field should contain 'N/A'.`;
+    const prompt = `
+Please provide a JSON object with the following keys about the car "${carName}":
+1. "influence": A short summary highlighting the car’s significance or influence.
+2. "msrp": Approximate Manufacturer's Suggested Retail Price (typical value is fine).
+3. "sales": Estimated sales figures or notable sales facts.
+4. "production": Production period or approximate production numbers.
+
+If exact data is unavailable, provide your best estimate or typical values based on historical trends. Respond only with valid JSON similar to this example:
+
+{
+  "influence": "Widely recognised as a pioneering sports car.",
+  "msrp": "$40,000 (estimated)",
+  "sales": "Approx. 500,000 units worldwide",
+  "production": "Produced 1964-1974"
+}
+
+Do not include any extra explanation or text, only return a valid JSON object.
+    `;
 
     try {
       const carData = await makeApiCall(prompt);
@@ -269,32 +272,22 @@ Return a single, flat JSON object with these keys. If a value cannot be found, t
     }
     const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(year + ' ' + car.name)}`;
     return `
-      <div class="glassmorphism rounded-2xl overflow-hidden mb-8 fade-in-content">
-        <div class="grid grid-cols-1 lg:grid-cols-5">
-          <div class="lg:col-span-2">
-            <img src="${imageUrl}" alt="Photo of ${car.name}" class="w-full h-64 lg:h-full object-cover bg-black/20" onerror="this.style.display='none'">
-          </div>
-          <div class="lg:col-span-3 p-6">
-            <h2 class="text-3xl font-bold text-white mb-1">${car.name} <span class="text-xl font-light text-slate-400">${year}</span></h2>
-            <p class="text-slate-300 mb-6">${car.influence || 'No influence description available.'}</p>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div class="stat-card">
-                <div class="stat-label">Sales</div>
-                <div class="stat-value">${car.sales || 'N/A'}</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">Production</div>
-                <div class="stat-value">${car.production || 'N/A'}</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">MSRP</div>
-                <div class="stat-value">${car.msrp || 'N/A'}</div>
-              </div>
-            </div>
+    <div class="glassmorphism rounded-2xl overflow-hidden mb-8 fade-in-content">
+      <div class="grid grid-cols-1 lg:grid-cols-5">
+        <div class="lg:col-span-2">
+          <img src="${imageUrl}" alt="Photo of ${car.name}" class="w-full h-64 lg:h-full object-cover bg-black/20" onerror="this.style.display='none'">
+        </div>
+        <div class="lg:col-span-3 p-6">
+          <h2 class="text-3xl font-bold text-white mb-1">${car.name} <span class="text-xl font-light text-gray-400">${year}</span></h2>
+          <p class="text-gray-200 mb-6">${car.influence || 'No influence description available.'}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="stat-card"><div class="stat-label">Sales</div><div class="stat-value">${car.sales || 'N/A'}</div></div>
+            <div class="stat-card"><div class="stat-label">Production</div><div class="stat-value">${car.production || 'N/A'}</div></div>
+            <div class="stat-card"><div class="stat-label">MSRP</div><div class="stat-value">${car.msrp || 'N/A'}</div></div>
           </div>
         </div>
       </div>
-    `;
+    </div>`;
   }
 
   function showError(message) {
