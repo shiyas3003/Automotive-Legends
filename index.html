@@ -3,305 +3,273 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Automotive Legacy Explorer</title>
+  <title>Top Cars Explorer</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
   <style>
-    :root {
-      --bg-color: #0d1117; 
-      --primary-text: #e6edf3; 
-      --secondary-text: #7d8590;
-      --accent-color: #22d3ee; 
-      --accent-glow: rgba(34, 211, 238, 0.3);
-      --border-color: rgba(255, 255, 255, 0.1); 
-      --card-bg: rgba(22, 27, 34, 0.9); /* increased opacity */
-    }
     body {
-      font-family: 'Inter', sans-serif; 
-      background-color: var(--bg-color); 
-      color: var(--primary-text);
+      font-family: 'Inter', sans-serif;
+      background-color: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
       background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
       background-size: 2rem 2rem;
     }
-    .glassmorphism {
-      background-color: var(--card-bg); 
-      backdrop-filter: blur(12px); 
+    .glass {
+      background: rgba(22, 27, 34, 0.7);
+      backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border-color); 
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
-    .stat-card {
-      background: rgba(0,0,0,0.2); 
-      border-radius: 12px; 
-      padding: 1rem;
-      text-align: center; 
-      border: 1px solid var(--border-color);
-    }
-    .stat-card .stat-label { 
-      color: var(--secondary-text); 
-      font-size: 0.9rem; 
-      margin-bottom: 0.5rem; 
-    }
-    .stat-card .stat-value { 
-      color: var(--accent-color); 
-      font-size: 1.75rem; 
-      font-weight: 700; 
-    }
     .loader {
-      border: 4px solid var(--border-color); 
-      border-top-color: var(--accent-color); 
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #22d3ee;
       border-radius: 50%;
-      width: 40px; 
-      height: 40px; 
+      width: 40px;
+      height: 40px;
       animation: spin 1s linear infinite;
+      margin: auto;
     }
-    @keyframes spin { 
-      0% { transform: rotate(0deg); } 
-      100% { transform: rotate(360deg); } 
-    }
-    .fade-in-content { 
-      animation: fade-in-up 0.5s ease-out; 
-    }
-    @keyframes fade-in-up { 
-      0% { opacity: 0; transform: translateY(10px); } 
-      100% { opacity: 1; transform: translateY(0); } 
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
     }
   </style>
 </head>
-<body class="min-h-screen">
-
-<header class="relative h-64 bg-cover bg-center text-white" style="background-image: url('https://source.unsplash.com/1600x900/?classic-car');">
-  <div class="bg-black bg-opacity-60 h-full flex flex-col justify-center items-center">
-    <h1 class="text-5xl font-bold drop-shadow-md">Automotive Legacy</h1>
-    <p class="mt-2 text-lg text-gray-200">Explore the most influential cars in history</p>
-  </div>
-</header>
-
-<main class="container mx-auto px-4 py-8">
-  <div class="glassmorphism p-6 rounded-2xl mb-10">
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
-      <div class="flex flex-col gap-2">
-        <label for="year-select" class="text-sm font-medium text-gray-300">Year</label>
-        <select id="year-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
-      </div>
-      <div class="flex flex-col gap-2">
-        <label for="category-select" class="text-sm font-medium text-gray-300">Category</label>
-        <select id="category-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
-          <option>Road Cars</option>
-          <option>F1</option>
-          <option>Rally</option>
-        </select>
-      </div>
-      <div class="flex flex-col gap-2">
-        <label for="continent-select" class="text-sm font-medium text-gray-300">Continent</label>
-        <select id="continent-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
-          <option>Any</option>
-          <option>Europe</option>
-          <option>Asia</option>
-          <option>North America</option>
-        </select>
-      </div>
-      <div class="flex flex-col gap-2">
-        <label for="country-select" class="text-sm font-medium text-gray-300">Country</label>
-        <select id="country-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
-      </div>
-      <button onclick="fetchAndRenderResults()" class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:scale-105 transition">Search</button>
+<body>
+  <header class="relative h-64 bg-cover bg-center text-white" style="background-image: url('https://source.unsplash.com/1600x900/?classic-car,sports-car');">
+    <div class="bg-black bg-opacity-60 h-full flex flex-col justify-center items-center">
+      <h1 class="text-4xl md:text-5xl font-bold drop-shadow-md">Top Cars Explorer</h1>
+      <p class="mt-2 text-lg text-slate-300 max-w-xl text-center px-4">
+        Discover the most influential road, F1, and rally cars by year, continent, and country. Dive into technical details and stories any petrolhead would love.
+      </p>
     </div>
-  </div>
+  </header>
 
-  <div id="results-area"></div>
-</main>
+  <main class="container mx-auto px-4 py-8">
+    <section class="glass p-6 mb-10">
+      <form id="filter-form" class="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
+        <div>
+          <label for="year" class="block mb-1 text-slate-300 font-medium">Year</label>
+          <select id="year" name="year" class="w-full rounded-md bg-[#1f2937] text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
+        </div>
+        <div>
+          <label for="category" class="block mb-1 text-slate-300 font-medium">Category</label>
+          <select id="category" name="category" class="w-full rounded-md bg-[#1f2937] text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+            <option value="Road Cars">Road Cars</option>
+            <option value="F1">F1</option>
+            <option value="Rally">Rally</option>
+          </select>
+        </div>
+        <div>
+          <label for="continent" class="block mb-1 text-slate-300 font-medium">Continent</label>
+          <select id="continent" name="continent" class="w-full rounded-md bg-[#1f2937] text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+            <option value="Any">Any</option>
+            <option value="Europe">Europe</option>
+            <option value="Asia">Asia</option>
+            <option value="North America">North America</option>
+            <option value="South America">South America</option>
+            <option value="Africa">Africa</option>
+            <option value="Oceania">Oceania</option>
+          </select>
+        </div>
+        <div>
+          <label for="country" class="block mb-1 text-slate-300 font-medium">Country</label>
+          <select id="country" name="country" class="w-full rounded-md bg-[#1f2937] text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
+        </div>
+        <div>
+          <button type="submit" class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:bg-cyan-600 transition">
+            Search
+          </button>
+        </div>
+      </form>
+    </section>
 
-<script>
-  // --- DOM Elements ---
-  const resultsArea = document.getElementById('results-area');
-  const yearSelect = document.getElementById('year-select');
-  const categorySelect = document.getElementById('category-select');
-  const continentSelect = document.getElementById('continent-select');
-  const countrySelect = document.getElementById('country-select');
+    <section id="results" class="space-y-8"></section>
+  </main>
 
-  // Update this to your actual backend URL
-  const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate';
+  <script>
+    const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate';
 
-  // --- Country Data ---
-  const countryData = {
-    'Any': ['Any'],
-    'Europe': ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden'],
-    'Asia': ['Any', 'Japan', 'South Korea'],
-    'North America': ['Any', 'United States']
-  };
+    const yearSelect = document.getElementById('year');
+    const categorySelect = document.getElementById('category');
+    const continentSelect = document.getElementById('continent');
+    const countrySelect = document.getElementById('country');
+    const resultsSection = document.getElementById('results');
+    const filterForm = document.getElementById('filter-form');
 
-  // --- Initial Setup ---
-  function initializeControls() {
-    for (let year = new Date().getFullYear(); year >= 1950; year--) {
-      const opt = document.createElement('option');
-      opt.value = year;
-      opt.textContent = year;
-      if (year === new Date().getFullYear()) opt.selected = true;
-      yearSelect.appendChild(opt);
+    // Countries by continent (expand as needed)
+    const countriesByContinent = {
+      Any: ['Any'],
+      Europe: ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden', 'Spain'],
+      Asia: ['Any', 'Japan', 'South Korea', 'China', 'India'],
+      'North America': ['Any', 'United States', 'Canada', 'Mexico'],
+      'South America': ['Any', 'Brazil', 'Argentina', 'Chile'],
+      Africa: ['Any', 'South Africa', 'Morocco', 'Egypt'],
+      Oceania: ['Any', 'Australia', 'New Zealand'],
+    };
+
+    // Populate years dropdown from current year back to 1950
+    function populateYears() {
+      const currentYear = new Date().getFullYear();
+      for (let y = currentYear; y >= 1950; y--) {
+        const option = document.createElement('option');
+        option.value = y;
+        option.textContent = y;
+        yearSelect.appendChild(option);
+      }
+      yearSelect.value = currentYear;
     }
-    continentSelect.addEventListener('change', () => {
-      const countries = countryData[continentSelect.value] || ['Any'];
-      countrySelect.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
-    });
-    continentSelect.dispatchEvent(new Event('change'));
-    fetchAndRenderResults();
-  }
 
-  // --- Main API Call Logic ---
-  async function makeApiCall(prompt) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-        signal: controller.signal
+    // Populate country dropdown based on selected continent
+    function updateCountries() {
+      const continent = continentSelect.value;
+      countrySelect.innerHTML = '';
+      const countries = countriesByContinent[continent] || ['Any'];
+      countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country;
+        option.textContent = country;
+        countrySelect.appendChild(option);
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    } catch (error) {
-      if (error.name === 'AbortError') {
-        throw new Error('The request timed out. The server may be starting up. Please try again in a moment.');
-      }
-      throw error;
-    } finally {
-      clearTimeout(timeoutId);
+      countrySelect.value = 'Any';
     }
-  }
 
-  // --- Main Controller Function ---
-  async function fetchAndRenderResults() {
-    resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10">
-      <div class="loader"></div>
-      <p class="mt-4 text-gray-400">Waking up server... this may take up to a minute.</p>
-    </div>`;
+    continentSelect.addEventListener('change', updateCountries);
 
-    try {
-      const carList = await getInfluentialCarList();
+    // API call helper
+    async function callApi(prompt) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-      if (!carList || carList.length === 0) {
-        showError("Could not find any influential cars for this selection. Try different filters.");
-        return;
-      }
-      resultsArea.innerHTML = '';
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ prompt }),
+          signal: controller.signal
+        });
 
-      const carDetailsPromises = carList.map(carName => getCarDetails(carName, yearSelect.value));
-      const carDetailsResults = await Promise.all(carDetailsPromises);
-
-      let resultsFound = false;
-      carDetailsResults.forEach((carDetails) => {
-        if (carDetails && carDetails.influence && carDetails.influence !== 'N/A') {
-          const carCardHTML = renderCarCard(carDetails, yearSelect.value);
-          if (carCardHTML) {
-            resultsFound = true;
-            const cardElement = document.createElement('div');
-            cardElement.innerHTML = carCardHTML;
-            if (cardElement.firstChild) {
-              resultsArea.appendChild(cardElement.firstChild);
-            }
-          }
+        if (!response.ok) {
+          const errJson = await response.json();
+          throw new Error(errJson.error || `Error: ${response.status}`);
         }
-      });
-
-      if (!resultsFound) {
-        showError("No detailed data found for the selected filters.");
+        return await response.json();
+      } catch (e) {
+        if (e.name === 'AbortError') {
+          throw new Error('Request timed out. Please try again.');
+        }
+        throw e;
+      } finally {
+        clearTimeout(timeoutId);
       }
-
-    } catch (err) {
-      showError(err.message);
     }
-  }
 
-  // --- Stage 1: Get Car List ---
-  async function getInfluentialCarList() {
-    const locationPrompt = countrySelect.value !== 'Any'
-      ? `from ${countrySelect.value}`
-      : (continentSelect.value !== 'Any' ? `from ${continentSelect.value}` : 'from anywhere');
-
-    const prompt = `Generate a JSON object with a single key "cars" containing an array of 3 influential ${categorySelect.value} car names ${locationPrompt} for the year ${yearSelect.value}. Return only valid JSON without extra text.`;
-
-    return await makeApiCall(prompt);
-  }
-
-  // --- Stage 2: Get Car Details ---
-  async function getCarDetails(carName, year) {
-    const prompt = `
-Please provide a JSON object with the following keys about the car "${carName}":
-1. "influence": A short summary highlighting the car’s significance or influence.
-2. "msrp": Approximate Manufacturer's Suggested Retail Price (typical value is fine).
-3. "sales": Estimated sales figures or notable sales facts.
-4. "production": Production period or approximate production numbers.
-
-If exact data is unavailable, provide your best estimate or typical values based on historical trends. Respond only with valid JSON similar to this example:
-
-{
-  "influence": "Widely recognised as a pioneering sports car.",
-  "msrp": "$40,000 (estimated)",
-  "sales": "Approx. 500,000 units worldwide",
-  "production": "Produced 1964-1974"
-}
-
-Do not include any extra explanation or text, only return a valid JSON object.
-    `;
-
-    try {
-      const carData = await makeApiCall(prompt);
-      if (carData) {
-        carData.name = carName;
-        return carData;
+    // Fetch top 5 cars list from AI
+    async function getTopCars(year, category, continent, country) {
+      let locationPhrase = 'from anywhere';
+      if (country !== 'Any') {
+        locationPhrase = `from ${country}`;
+      } else if (continent !== 'Any') {
+        locationPhrase = `from ${continent}`;
       }
-      return null;
-    } catch (err) {
-      console.error(`Could not fetch details for ${carName}:`, err.message);
-      return null;
-    }
-  }
+      const prompt = `Generate a JSON object with a single key "cars" containing an array of the top 5 influential ${category} cars ${locationPhrase} for the year ${year}. Return only JSON.`;
 
-  // --- UI Rendering ---
-  function renderCarCard(car, year) {
-    if (!car || typeof car.name !== 'string') {
-      console.error("Render skipped: Invalid car data object received.", car);
-      return '';
+      const data = await callApi(prompt);
+      return data.cars || [];
     }
-    const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(year + ' ' + car.name)}`;
-    return `
-    <div class="glassmorphism rounded-2xl overflow-hidden mb-8 fade-in-content">
-      <div class="grid grid-cols-1 lg:grid-cols-5">
-        <div class="lg:col-span-2">
-          <img src="${imageUrl}" alt="Photo of ${car.name}" class="w-full h-64 lg:h-full object-cover bg-black/20" onerror="this.style.display='none'">
-        </div>
-        <div class="lg:col-span-3 p-6">
-          <h2 class="text-3xl font-bold text-white mb-1">${car.name} <span class="text-xl font-light text-gray-400">${year}</span></h2>
-          <p class="text-gray-200 mb-6">${car.influence || 'No influence description available.'}</p>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="stat-card"><div class="stat-label">Sales</div><div class="stat-value">${car.sales || 'N/A'}</div></div>
-            <div class="stat-card"><div class="stat-label">Production</div><div class="stat-value">${car.production || 'N/A'}</div></div>
-            <div class="stat-card"><div class="stat-label">MSRP</div><div class="stat-value">${car.msrp || 'N/A'}</div></div>
+
+    // Fetch detailed info for a car
+    async function getCarDetails(carName, year) {
+      const prompt = `For the car "${carName}" in the year ${year}, provide a JSON object with these keys:
+- "facts": interesting facts petrolheads would love,
+- "engine": engine specifications,
+- "performance": performance details (e.g. horsepower, top speed),
+- "msrp": original MSRP price if available,
+Return "N/A" for any data you cannot find. Return only JSON.`;
+
+      const data = await callApi(prompt);
+      data.name = carName;
+      return data;
+    }
+
+    // Create a car card element from data
+    function createCarCard(car) {
+      const photoQuery = encodeURIComponent(`${car.name} car ${car.engine || ''}`.trim());
+      const imageUrl = `https://source.unsplash.com/800x600/?${photoQuery}`;
+
+      return `
+        <article class="glass p-6 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+          <img src="${imageUrl}" alt="Photo of ${car.name}" class="rounded-lg object-cover w-full h-48 md:h-full" onerror="this.style.display='none'"/>
+          <div class="md:col-span-2">
+            <h2 class="text-3xl font-bold mb-2">${car.name}</h2>
+            <p class="mb-3 text-slate-300"><strong>Facts:</strong> ${car.facts || 'N/A'}</p>
+            <p class="mb-1"><strong>Engine:</strong> ${car.engine || 'N/A'}</p>
+            <p class="mb-1"><strong>Performance:</strong> ${car.performance || 'N/A'}</p>
+            <p class="mb-1"><strong>MSRP:</strong> ${car.msrp || 'N/A'}</p>
           </div>
-        </div>
-      </div>
-    </div>`;
-  }
+        </article>
+      `;
+    }
 
-  function showError(message) {
-    console.error("An error occurred:", message);
-    resultsArea.innerHTML = `
-      <div class="text-red-400 text-center glassmorphism p-8 rounded-xl">
-        <strong class="block mb-2">An Error Occurred:</strong>
-        <p class="text-sm">${message}</p>
-      </div>`;
-  }
+    // Show loading spinner
+    function showLoading() {
+      resultsSection.innerHTML = `<div class="loader my-20"></div>`;
+    }
 
-  // --- Start the App ---
-  initializeControls();
-</script>
+    // Show error message
+    function showError(message) {
+      resultsSection.innerHTML = `
+        <p class="text-center text-red-400 bg-black bg-opacity-50 p-6 rounded-lg max-w-xl mx-auto">${message}</p>
+      `;
+    }
 
+    // Main search handler
+    async function handleSearch(event) {
+      event.preventDefault();
+      resultsSection.innerHTML = '';
+      showLoading();
+
+      const year = yearSelect.value;
+      const category = categorySelect.value;
+      const continent = continentSelect.value;
+      const country = countrySelect.value;
+
+      try {
+        const cars = await getTopCars(year, category, continent, country);
+        if (!cars.length) {
+          showError('No cars found for this selection.');
+          return;
+        }
+
+        // Fetch details for all cars concurrently
+        const detailsPromises = cars.map(car => getCarDetails(car, year));
+        const carsDetails = await Promise.all(detailsPromises);
+
+        // Render all cards
+        resultsSection.innerHTML = carsDetails
+          .map(createCarCard)
+          .join('');
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+
+    // Initialization
+    function init() {
+      populateYears();
+      updateCountries();
+      filterForm.addEventListener('submit', handleSearch);
+      // Initial load
+      handleSearch(new Event('submit'));
+    }
+
+    window.onload = init;
+  </script>
 </body>
 </html>
