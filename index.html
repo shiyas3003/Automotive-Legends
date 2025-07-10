@@ -73,6 +73,34 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+.detail-tab {
+  transition: all 0.2s ease;
+  color: var(--secondary-text);
+  border-bottom: 2px solid transparent;
+  padding: 8px 4px;
+  font-weight: 500;
+}
+.detail-tab[aria-selected="true"] {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+  font-weight: 600;
+  text-shadow: 0 0 8px var(--accent-glow);
+}
+.detail-tab:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.detail-tab-panel[hidden] {
+  display: none;
+}
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.fade-in-content {
+  animation: fade-in-up 0.5s ease-out;
+}
 </style>
 </head>
 <body class="min-h-screen">
@@ -150,8 +178,18 @@ function renderCarCard(car, year, rank = null) {
   car.production_numbers ||= 'N/A';
   car.original_msrp ||= 'N/A';
 
-  return `$1</div>
-
+  return `
+    <div class="glassmorphism p-6 rounded-2xl mb-12 fade-in-content">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">${car.name} <span class="text-gray-400 font-normal">(${year})</span> ${badge}</h2>
+      <p class="text-gray-400 mb-6 max-w-3xl">${car.influence}</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="stat-card"><div class="stat-label" title="Units sold in that year">Sales</div><div class="stat-value">${car.sales_figures}</div></div>
+        <div class="stat-card"><div class="stat-label" title="Total units produced that year">Production</div><div class="stat-value">${car.production_numbers}</div></div>
+        <div class="stat-card"><div class="stat-label" title="Manufacturer's Suggested Retail Price in USD">MSRP</div><div class="stat-value">${car.original_msrp}</div></div>
+      </div>
+      <div class="relative rounded-lg shadow-lg w-full h-64 md:h-96 bg-black/20 mb-8 border border-[var(--border-color)]">
+        <img src="${imageUrl}" onerror="this.onerror=null;this.src='https://via.placeholder.com/800x600?text=No+Image'" class="w-full h-full object-cover rounded-lg" alt="${car.name}">
+      </div>
       <div id="detail-tabs">
         <div role="tablist" class="flex space-x-6 border-b border-[var(--border-color)] mb-4">
           <button role="tab" aria-selected="true" aria-controls="panel-facts" class="detail-tab">Facts</button>
@@ -173,7 +211,9 @@ function renderCarCard(car, year, rank = null) {
             <img src="https://source.unsplash.com/800x600/?${encodeURIComponent(car.name + ' engine blueprint')}" class="w-full h-full object-contain rounded-lg p-2" alt="${car.name} parts diagram">
           </div>
         </div>
-      </div>`;
+      </div>
+    </div>`;
+}
 }
 
 async function fetchCarData() {
@@ -194,16 +234,16 @@ async function fetchCarData() {
   const country = countrySelect.value;
 
   const locationPrompt = country !== 'Any' ? `from ${country}` : (continent !== 'Any' ? `from ${continent}` : 'from anywhere in the world');
-  const prompt = `Generate a list of the top 5 most influential ${category} vehicles ${locationPrompt} for the year ${year}. For each vehicle, provide:
+  const prompt = `Generate a JSON object with a key \"cars\" containing exactly 5 of the most influential ${category} vehicles ${locationPrompt} for the year ${year}. For each vehicle, include these fields:
 - name
-- a short paragraph on its influence
-- a list of 3 interesting facts
-- a list of 4 technical details
-- sales_figures (formatted string, e.g., "Approx. 25,000 units")
-- production_numbers (formatted string)
-- original_msrp (formatted USD string, e.g., "$35,000")
+- influence (1 short paragraph)
+- interesting_facts (an array of exactly 3 bullet points)
+- technical_details (an array of exactly 4 formatted spec items)
+- sales_figures (e.g. \"Approx. 25,000 units\")
+- production_numbers (e.g. \"Around 30,000 made\")
+- original_msrp (USD string like \"$28,000\")
 
-All fields are required in the output JSON.`;
+All fields must be included for every vehicle. Return the data as a clean, raw JSON object with no markdown or commentary.`;
 
   resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10">
   <div class="loader border-4 border-t-cyan-500 border-gray-700 rounded-full w-12 h-12 animate-spin"></div>
