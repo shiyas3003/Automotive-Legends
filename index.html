@@ -1,107 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Automotive Legacy Explorer</title>
-  <script src="https://cdn.tailwindcss.com">function initializeAccessibleTabs(tabContainer) {
-  const tabs = Array.from(tabContainer.querySelectorAll('[role="tab"]'));
-  tabs.forEach(tab => {
-    tab.addEventListener('click', (e) => {
-      const currentTab = e.currentTarget;
-      const panelId = currentTab.getAttribute('aria-controls');
-      tabs.forEach(t => {
-        t.setAttribute('aria-selected', 'false');
-        t.setAttribute('tabindex', '-1');
-      });
-      currentTab.setAttribute('aria-selected', 'true');
-      currentTab.removeAttribute('tabindex');
-      Array.from(tabContainer.querySelectorAll('[role="tabpanel"]')).forEach(p => {
-        p.hidden = (p.id !== panelId);
-        p.classList.remove('fade-in-content');
-        if (p.id === panelId) p.classList.add('fade-in-content');
-      });
-    });
-  });
-}
-
-</script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-color: #0d1117;
-      --primary-text: #e6edf3;
+      --bg-color: #0d1117; 
+      --primary-text: #e6edf3; 
       --secondary-text: #7d8590;
-      --accent-color: #22d3ee;
+      --accent-color: #22d3ee; 
       --accent-glow: rgba(34, 211, 238, 0.3);
-      --border-color: rgba(255, 255, 255, 0.1);
+      --border-color: rgba(255, 255, 255, 0.1); 
       --card-bg: rgba(22, 27, 34, 0.6);
     }
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--bg-color);
+      font-family: 'Inter', sans-serif; 
+      background-color: var(--bg-color); 
       color: var(--primary-text);
       background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
       background-size: 2rem 2rem;
     }
+    .glassmorphism {
+      background-color: var(--card-bg); 
+      backdrop-filter: blur(12px); 
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color); 
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
     .stat-card {
-      background: rgba(0,0,0,0.2);
-      border-radius: 12px;
+      background: rgba(0,0,0,0.2); 
+      border-radius: 12px; 
       padding: 1rem;
-      text-align: center;
+      text-align: center; 
       border: 1px solid var(--border-color);
     }
-    .stat-card .stat-label {
-      color: var(--secondary-text);
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
+    .stat-card .stat-label { 
+      color: var(--secondary-text); 
+      font-size: 0.9rem; 
+      margin-bottom: 0.5rem; 
     }
-    .stat-card .stat-value {
-      color: var(--accent-color);
-      font-size: 1.75rem;
-      font-weight: 700;
+    .stat-card .stat-value { 
+      color: var(--accent-color); 
+      font-size: 1.75rem; 
+      font-weight: 700; 
     }
     .loader {
-    border: 4px solid var(--border-color);
-    border-top-color: var(--accent-color);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-.detail-tab {
-  transition: all 0.2s ease;
-  color: var(--secondary-text);
-  border-bottom: 2px solid transparent;
-  padding: 8px 4px;
-  font-weight: 500;
-}
-.detail-tab[aria-selected="true"] {
-  color: var(--accent-color);
-  border-bottom-color: var(--accent-color);
-  font-weight: 600;
-  text-shadow: 0 0 8px var(--accent-glow);
-}
-.detail-tab:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-.detail-tab-panel[hidden] {
-  display: none;
-}
-@keyframes fade-in-up {
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-.fade-in-content {
-  animation: fade-in-up 0.5s ease-out;
-}
-</style>
+      border: 4px solid var(--border-color); 
+      border-top-color: var(--accent-color); 
+      border-radius: 50%;
+      width: 40px; 
+      height: 40px; 
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+    .fade-in-content { 
+      animation: fade-in-up 0.5s ease-out; 
+    }
+    @keyframes fade-in-up { 
+      0% { opacity: 0; transform: translateY(10px); } 
+      100% { opacity: 1; transform: translateY(0); } 
+    }
+  </style>
 </head>
 <body class="min-h-screen">
 
@@ -114,174 +79,236 @@
 
 <main class="container mx-auto px-4 py-8">
   <div class="glassmorphism p-6 rounded-2xl mb-10">
-    <div class="flex flex-wrap gap-4 justify-center">
-      <select id="year-select" class="bg-[#1f2937] text-white px-4 py-2 rounded-lg">
-        <!-- Populated by JS -->
-      </select>
-      <select id="category-select" class="bg-[#1f2937] text-white px-4 py-2 rounded-lg">
-        <option value="Road Cars">Road Cars</option>
-        <option value="F1">F1</option>
-        <option value="Rally">Rally</option>
-      </select>
-      <select id="continent-select" class="bg-[#1f2937] text-white px-4 py-2 rounded-lg">
-        <option value="Any">Any</option>
-        <option value="Europe">Europe</option>
-        <option value="Asia">Asia</option>
-        <option value="North America">North America</option>
-      </select>
-      <select id="country-select" class="bg-[#1f2937] text-white px-4 py-2 rounded-lg">
-        <!-- Populated by JS -->
-      </select>
-      <button onclick="fetchCarData()" class="bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:scale-105 transition">Search</button>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
+      <div class="flex flex-col gap-2">
+        <label for="year-select" class="text-sm font-medium text-slate-300">Year</label>
+        <select id="year-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="category-select" class="text-sm font-medium text-slate-300">Category</label>
+        <select id="category-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
+          <option>Road Cars</option>
+          <option>F1</option>
+          <option>Rally</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="continent-select" class="text-sm font-medium text-slate-300">Continent</label>
+        <select id="continent-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
+          <option>Any</option>
+          <option>Europe</option>
+          <option>Asia</option>
+          <option>North America</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="country-select" class="text-sm font-medium text-slate-300">Country</label>
+        <select id="country-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
+      </div>
+      <button onclick="fetchAndRenderResults()" class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:scale-105 transition">Search</button>
     </div>
   </div>
 
-  <div id="results-area">
-    <div class="text-center text-slate-400">Loading vehicle data...</div>
-  </div>
+  <div id="results-area"></div>
 </main>
 
 <script>
-const resultsArea = document.getElementById('results-area');
-const yearSelect = document.getElementById('year-select');
-const categorySelect = document.getElementById('category-select');
-const continentSelect = document.getElementById('continent-select');
-const countrySelect = document.getElementById('country-select');
+  // --- DOM Elements ---
+  const resultsArea = document.getElementById('results-area');
+  const yearSelect = document.getElementById('year-select');
+  const categorySelect = document.getElementById('category-select');
+  const continentSelect = document.getElementById('continent-select');
+  const countrySelect = document.getElementById('country-select');
+  
+  const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate'; 
 
-const countryData = {
-  'Any': ['Any'],
-  'Europe': ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden'],
-  'Asia': ['Any', 'Japan', 'South Korea'],
-  'North America': ['Any', 'United States']
-};
+  // --- Country Data ---
+  const countryData = {
+    'Any': ['Any'], 
+    'Europe': ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden'],
+    'Asia': ['Any', 'Japan', 'South Korea'], 
+    'North America': ['Any', 'United States']
+  };
 
-for (let year = new Date().getFullYear(); year >= 1950; year--) {
-  const opt = document.createElement('option');
-  opt.value = year;
-  opt.textContent = year;
-  yearSelect.appendChild(opt);
-}
+  // --- Initial Setup ---
+  function initializeControls() {
+    // Populate year select from current year down to 1950
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear; year >= 1950; year--) {
+      const opt = document.createElement('option');
+      opt.value = year;
+      opt.textContent = year;
+      if (year === currentYear) opt.selected = true;
+      yearSelect.appendChild(opt);
+    }
 
-continentSelect.addEventListener('change', () => {
-  const countries = countryData[continentSelect.value] || ['Any'];
-  countrySelect.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
-});
-continentSelect.dispatchEvent(new Event('change'));
+    continentSelect.addEventListener('change', () => {
+      const countries = countryData[continentSelect.value] || ['Any'];
+      countrySelect.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
+    });
 
-function renderCarCard(car, year, rank = null) {
-  const imageQuery = encodeURIComponent((car.name || '') + ' ' + (car.brand || '') + ' car');
-  const imageUrl = `https://source.unsplash.com/800x600/?${imageQuery}`;
-  const wikiLink = `https://en.wikipedia.org/wiki/${encodeURIComponent(car.name.replace(/ /g, '_'))}`;
-  const badge = rank === 1 ? '<span class="ml-2 px-2 py-1 text-xs bg-green-500 text-black rounded-full" title="Highest sales in year">Top Seller</span>' : '';
+    // Trigger initial population of country select
+    continentSelect.dispatchEvent(new Event('change'));
 
-  car.sales_figures ||= 'N/A';
-  car.production_numbers ||= 'N/A';
-  car.original_msrp ||= 'N/A';
+    // Initial fetch of results
+    fetchAndRenderResults();
+  }
 
-  return `
-    <div class="glassmorphism p-6 rounded-2xl mb-12 fade-in-content">
-      <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">${car.name} <span class="text-gray-400 font-normal">(${year})</span> ${badge}</h2>
-      <p class="text-gray-400 mb-6 max-w-3xl">${car.influence}</p>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div class="stat-card"><div class="stat-label" title="Units sold in that year">Sales</div><div class="stat-value">${car.sales_figures}</div></div>
-        <div class="stat-card"><div class="stat-label" title="Total units produced that year">Production</div><div class="stat-value">${car.production_numbers}</div></div>
-        <div class="stat-card"><div class="stat-label" title="Manufacturer's Suggested Retail Price in USD">MSRP</div><div class="stat-value">${car.original_msrp}</div></div>
-      </div>
-      <div class="relative rounded-lg shadow-lg w-full h-64 md:h-96 bg-black/20 mb-8 border border-[var(--border-color)]">
-        <img src="${imageUrl}" onerror="this.onerror=null;this.src='https://via.placeholder.com/800x600?text=No+Image'" class="w-full h-full object-cover rounded-lg" alt="${car.name}">
-      </div>
-      <div id="detail-tabs">
-        <div role="tablist" class="flex space-x-6 border-b border-[var(--border-color)] mb-4">
-          <button role="tab" aria-selected="true" aria-controls="panel-facts" class="detail-tab">Facts</button>
-          <button role="tab" aria-selected="false" aria-controls="panel-tech" tabindex="-1" class="detail-tab">Tech Specs</button>
-          <button role="tab" aria-selected="false" aria-controls="panel-diagram" tabindex="-1" class="detail-tab">Diagram</button>
-        </div>
-        <div id="panel-facts" role="tabpanel" class="detail-tab-panel fade-in-content">
-          <ul class="list-disc list-inside text-gray-300 space-y-2">
-            ${(car.interesting_facts || []).map(fact => `<li>${fact}</li>`).join('')}
-          </ul>
-        </div>
-        <div id="panel-tech" role="tabpanel" class="detail-tab-panel" hidden>
-          <ul class="space-y-2 text-gray-300">
-            ${(car.technical_details || []).map(detail => `<li class="flex items-center border-b border-[var(--border-color)] py-2"><strong class="w-1/3 text-gray-400">${detail.split(':')[0]}:</strong><span>${detail.split(':').slice(1).join(':').trim()}</span></li>`).join('')}
-          </ul>
-        </div>
-        <div id="panel-diagram" role="tabpanel" class="detail-tab-panel" hidden>
-          <div class="relative rounded-lg w-full h-96 bg-black/20 border border-[var(--border-color)]">
-            <img src="https://source.unsplash.com/800x600/?${encodeURIComponent(car.name + ' engine blueprint')}" class="w-full h-full object-contain rounded-lg p-2" alt="${car.name} parts diagram">
+  // --- API call with timeout ---
+  async function makeApiCall(prompt) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('The request timed out. The server may be starting up. Please try again in a moment.');
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  // --- Main Controller Function ---
+  async function fetchAndRenderResults() {
+    resultsArea.innerHTML = `
+      <div class="flex flex-col items-center justify-center text-center py-10">
+        <div class="loader"></div>
+        <p class="mt-4 text-slate-400">Waking up server... this may take up to a minute.</p>
+      </div>`;
+
+    try {
+      const carList = await getInfluentialCarList();
+
+      if (!carList || carList.length === 0) {
+        showError("Could not find any influential cars for this selection. The AI may not have data for these specific criteria.");
+        return;
+      }
+
+      resultsArea.innerHTML = '';
+
+      const carDetailsPromises = carList.map(carName => getCarDetails(carName, yearSelect.value));
+      const carDetailsResults = await Promise.all(carDetailsPromises);
+
+      let resultsFound = false;
+      carDetailsResults.forEach(carDetails => {
+        if (carDetails) {
+          const carCardHTML = renderCarCard(carDetails, yearSelect.value);
+          if (carCardHTML) {
+            resultsFound = true;
+            const cardElement = document.createElement('div');
+            cardElement.innerHTML = carCardHTML;
+            if (cardElement.firstChild) {
+              resultsArea.appendChild(cardElement.firstChild);
+            }
+          }
+        }
+      });
+
+      if (!resultsFound) {
+        showError("Found influential cars, but could not retrieve their specific details. Please try a different selection.");
+      }
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+
+  // --- Stage 1: Get Car List ---
+  async function getInfluentialCarList() {
+    let locationPrompt = 'from anywhere';
+    if (countrySelect.value !== 'Any') {
+      locationPrompt = `from ${countrySelect.value}`;
+    } else if (continentSelect.value !== 'Any') {
+      locationPrompt = `from ${continentSelect.value}`;
+    }
+    const prompt = `Generate a JSON object with a single key "cars" containing an array of 3 influential ${categorySelect.value} names ${locationPrompt} for the year ${yearSelect.value}.`;
+    const data = await makeApiCall(prompt);
+    return data?.cars;
+  }
+
+  // --- Stage 2: Get Car Details ---
+  async function getCarDetails(carName, year) {
+    const prompt = `For the car "${carName} ${year}", find the following information:
+1. A short "influence" summary.
+2. Its "msrp" (original Manufacturer's Suggested Retail Price in its primary market).
+3. Its "sales" figures (any notable or approximate sales data).
+4. Its "production" numbers (any notable or approximate production data).
+Return a single, flat JSON object with these keys. If a value cannot be found, the field should contain 'N/A'.`;
+
+    try {
+      const carData = await makeApiCall(prompt);
+      if (carData) {
+        carData.name = carName;
+        return carData;
+      }
+      return null;
+    } catch (err) {
+      console.error(`Could not fetch details for ${carName}:`, err.message);
+      return null;
+    }
+  }
+
+  // --- UI Rendering ---
+  function renderCarCard(car, year) {
+    if (!car || typeof car.name !== 'string') {
+      console.error("Render skipped: Invalid car data object received.", car);
+      return '';
+    }
+    const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(year + ' ' + car.name)}`;
+    return `
+      <div class="glassmorphism rounded-2xl overflow-hidden mb-8 fade-in-content">
+        <div class="grid grid-cols-1 lg:grid-cols-5">
+          <div class="lg:col-span-2">
+            <img src="${imageUrl}" alt="Photo of ${car.name}" class="w-full h-64 lg:h-full object-cover bg-black/20" onerror="this.style.display='none'">
+          </div>
+          <div class="lg:col-span-3 p-6">
+            <h2 class="text-3xl font-bold text-white mb-1">${car.name} <span class="text-xl font-light text-slate-400">${year}</span></h2>
+            <p class="text-slate-300 mb-6">${car.influence || 'No influence description available.'}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="stat-card">
+                <div class="stat-label">Sales</div>
+                <div class="stat-value">${car.sales || 'N/A'}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Production</div>
+                <div class="stat-value">${car.production || 'N/A'}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">MSRP</div>
+                <div class="stat-value">${car.msrp || 'N/A'}</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>`;
-}
-}
-
-async function fetchCarData() {
-  const cacheKey = `cars-${yearSelect.value}-${categorySelect.value}-${continentSelect.value}-${countrySelect.value}`;
-  const cached = localStorage.getItem(cacheKey);
-  if (cached) {
-    try {
-      const data = JSON.parse(cached);
-      resultsArea.innerHTML = data.cars.map((car, i) => renderCarCard(car, yearSelect.value, i === 0 ? 1 : null)).join('');
-      return;
-    } catch (e) {
-      localStorage.removeItem(cacheKey); // clear corrupted cache
-    }
+    `;
   }
-  const year = yearSelect.value;
-  const category = categorySelect.value;
-  const continent = continentSelect.value;
-  const country = countrySelect.value;
 
-  const locationPrompt = country !== 'Any' ? `from ${country}` : (continent !== 'Any' ? `from ${continent}` : 'from anywhere in the world');
-  const prompt = `Generate a JSON object with a key \"cars\" containing exactly 5 of the most influential ${category} vehicles ${locationPrompt} for the year ${year}. For each vehicle, include these fields:
-- name
-- influence (1 short paragraph)
-- interesting_facts (an array of exactly 3 bullet points)
-- technical_details (an array of exactly 4 formatted spec items)
-- sales_figures (e.g. \"Approx. 25,000 units\")
-- production_numbers (e.g. \"Around 30,000 made\")
-- original_msrp (USD string like \"$28,000\")
-
-All fields must be included for every vehicle. Return the data as a clean, raw JSON object with no markdown or commentary.`;
-
-  resultsArea.innerHTML = `<div class="flex flex-col items-center justify-center text-center py-10">
-  <div class="loader border-4 border-t-cyan-500 border-gray-700 rounded-full w-12 h-12 animate-spin"></div>
-  <p class="mt-4 text-slate-400">Fetching cars...</p>
-</div>`;
-
-  try {
-    const response = await fetch('https://gemini-backend-1eb3.onrender.com/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-
-    const result = await response.json();
-    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log('Raw AI response:', text);
-    const cleaned = text.replace(/```json|```/g, '').trim();
-    const data = JSON.parse(cleaned);
-    localStorage.setItem(cacheKey, JSON.stringify(data));
-
-    if (!Array.isArray(data.cars)) throw new Error('Unexpected format');
-
-    resultsArea.innerHTML = data.cars.map((car, i) => {
-  const html = renderCarCard(car, year, i === 0 ? 1 : null);
-  setTimeout(() => {
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = html;
-    const tabBlock = wrapper.querySelector('#detail-tabs');
-    if (tabBlock) initializeAccessibleTabs(tabBlock);
-  }, 0);
-  return html;
-}).join('');
-  } catch (err) {
-    resultsArea.innerHTML = `<div class="text-red-400 text-center">Error: ${err.message}</div>`;
+  function showError(message) {
+    console.error("An error occurred:", message);
+    resultsArea.innerHTML = `
+      <div class="text-red-400 text-center glassmorphism p-8 rounded-xl">
+        <strong class="block mb-2">An Error Occurred:</strong>
+        <p class="text-sm">${message}</p>
+      </div>`;
   }
-}
 
-fetchCarData();
+  // --- Start the App ---
+  initializeControls();
 </script>
+
 </body>
 </html>
