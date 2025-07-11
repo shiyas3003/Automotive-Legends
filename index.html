@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Automotive Explorer</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
   <style>
     :root {
       --bg-color: #0d1117;
@@ -20,7 +23,11 @@
       font-family: 'Inter', sans-serif;
       background-color: var(--bg-color);
       color: var(--primary-text);
-      background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+      background-image: radial-gradient(
+        circle at 1px 1px,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 0
+      );
       background-size: 2rem 2rem;
     }
     .glass {
@@ -34,8 +41,14 @@
       animation: fade-in-up 0.5s ease-out;
     }
     @keyframes fade-in-up {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: translateY(0); }
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     article {
       margin-bottom: 1.5rem;
@@ -43,7 +56,10 @@
   </style>
 </head>
 <body class="min-h-screen">
-  <header class="relative h-64 bg-cover bg-center text-white" style="background-image: url('https://source.unsplash.com/1600x900/?classic-car');">
+  <header
+    class="relative h-64 bg-cover bg-center text-white"
+    style="background-image: url('https://source.unsplash.com/1600x900/?classic-car')"
+  >
     <div class="bg-black bg-opacity-60 h-full flex flex-col justify-center items-center">
       <h1 class="text-5xl font-bold drop-shadow-md">Automotive Explorer</h1>
       <p class="mt-2 text-lg text-slate-200">Discover the most iconic cars in history</p>
@@ -68,14 +84,22 @@
         <div class="flex flex-col gap-2">
           <label for="continent-select" class="text-sm font-medium text-slate-300">Continent</label>
           <select id="continent-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg">
-            <option>Any</option><option>Europe</option><option>Asia</option><option>North America</option>
+            <option>Any</option>
+            <option>Europe</option>
+            <option>Asia</option>
+            <option>North America</option>
           </select>
         </div>
         <div class="flex flex-col gap-2">
           <label for="country-select" class="text-sm font-medium text-slate-300">Country</label>
           <select id="country-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg"></select>
         </div>
-        <button onclick="fetchAndRenderCars()" class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:scale-105 transition">Search</button>
+        <button
+          id="search-btn"
+          class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:scale-105 transition"
+        >
+          Search
+        </button>
       </div>
     </div>
 
@@ -85,18 +109,23 @@
   <script>
     const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate';
 
+    const PEXELS_API_KEY = 'YOUR_PEXELS_API_KEY'; // Replace with your actual key
+    const PIXABAY_API_KEY = 'YOUR_PIXABAY_API_KEY'; // Replace with your actual key
+
     const yearSelect = document.getElementById('year-select');
     const continentSelect = document.getElementById('continent-select');
     const countrySelect = document.getElementById('country-select');
     const resultsArea = document.getElementById('results-area');
+    const searchBtn = document.getElementById('search-btn');
 
     const countryData = {
-      'Any': ['Any'],
-      'Europe': ['Any', 'Germany', 'Italy', 'France', 'United Kingdom', 'Sweden'],
-      'Asia': ['Any', 'Japan', 'South Korea'],
+      Any: ['Any'],
+      Europe: ['Any', 'Germany', 'Italy', 'France', 'United Kingdom', 'Sweden'],
+      Asia: ['Any', 'Japan', 'South Korea'],
       'North America': ['Any', 'United States']
     };
 
+    // Populate year selector
     for (let year = new Date().getFullYear(); year >= 1886; year--) {
       const opt = document.createElement('option');
       opt.value = year;
@@ -104,35 +133,116 @@
       yearSelect.appendChild(opt);
     }
 
+    // Populate country selector on continent change
     continentSelect.addEventListener('change', () => {
       const countries = countryData[continentSelect.value] || ['Any'];
-      countrySelect.innerHTML = countries.map(c => `<option>${c}</option>`).join('');
+      countrySelect.innerHTML = countries.map((c) => `<option>${c}</option>`).join('');
     });
     continentSelect.dispatchEvent(new Event('change'));
 
     function renderField(value) {
       if (value === null || value === undefined) return 'N/A';
       if (typeof value === 'object') {
-        return Object.entries(value).map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`).join('');
+        return Object.entries(value)
+          .map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`)
+          .join('');
       }
       return value;
     }
 
-    function createCarCard(car) {
+    async function fetchUnsplashImage(query) {
+      const url = `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}`;
+      try {
+        const res = await fetch(url, { method: 'HEAD' });
+        if (res.ok) return url;
+      } catch {}
+      return null;
+    }
+
+    async function fetchPexelsImage(query) {
+      if (!PEXELS_API_KEY) return null;
+      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1`;
+      try {
+        const res = await fetch(url, {
+          headers: { Authorization: PEXELS_API_KEY }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.photos?.[0]?.src?.medium || null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchPixabayImage(query) {
+      if (!PIXABAY_API_KEY) return null;
+      const url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(
+        query
+      )}&image_type=photo&per_page=3`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.hits?.[0]?.webformatURL || null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchWikimediaImage(query) {
+      const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(
+        query
+      )}&gsrlimit=1&prop=imageinfo&iiprop=url&format=json&origin=*`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const pages = data.query?.pages;
+        if (!pages) return null;
+        const page = Object.values(pages)[0];
+        const imgInfo = page.imageinfo?.[0];
+        return imgInfo?.url || null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchCarImage(query) {
+      let img = await fetchUnsplashImage(query);
+      if (img) return img;
+
+      img = await fetchPexelsImage(query);
+      if (img) return img;
+
+      img = await fetchPixabayImage(query);
+      if (img) return img;
+
+      img = await fetchWikimediaImage(query);
+      if (img) return img;
+
+      return 'https://via.placeholder.com/800x600?text=No+Image+Available'; // fallback
+    }
+
+    async function createCarCardAsync(car) {
       const name = car.name || car.carName || 'Unknown Car';
       const facts = Array.isArray(car.facts)
-        ? car.facts.map(f => `<li>${f}</li>`).join('')
+        ? car.facts.map((f) => `<li>${f}</li>`).join('')
         : `<li>${car.facts || 'N/A'}</li>`;
       const engine = car.engine ? renderField(car.engine) : 'N/A';
       const performance = car.performance ? renderField(car.performance) : 'N/A';
-      const msrp = typeof car.msrp === 'object' ? renderField(car.msrp) : car.msrp || 'N/A';
-      const imageQuery = encodeURIComponent(`${name} ${car.category || 'car'}`);
-      const imageUrl = `https://source.unsplash.com/800x600/?${imageQuery}`;
-      const fallbackUrl = 'https://source.unsplash.com/800x600/?car';
+      const msrp =
+        typeof car.msrp === 'object' ? renderField(car.msrp) : car.msrp || 'N/A';
+
+      const imageQuery = `${name} ${car.category || 'car'}`;
+      const imageUrl = await fetchCarImage(imageQuery);
 
       return `
         <article class="glass p-6 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-6 fade-in-content">
-          <img src="${imageUrl}" alt="Photo of ${name}" class="rounded-lg object-cover w-full h-48 md:h-full" onerror="this.onerror=null;this.src='${fallbackUrl}'"/>
+          <img
+            src="${imageUrl}"
+            alt="Photo of ${name}"
+            class="rounded-lg object-cover w-full h-48 md:h-full"
+          />
           <div class="md:col-span-2">
             <h2 class="text-3xl font-bold mb-2">${name}</h2>
             <p class="text-slate-300"><strong>Interesting Details:</strong></p>
@@ -142,40 +252,59 @@
             <p class="text-slate-300"><strong>Performance:</strong></p>
             <ul class="mb-3 list-disc list-inside text-slate-400">${performance}</ul>
             <p class="text-slate-300"><strong>MSRP:</strong></p>
-            <ul class="mb-3 list-disc list-inside text-slate-400">${typeof msrp === 'string' ? `<li>${msrp}</li>` : msrp}</ul>
+            <ul class="mb-3 list-disc list-inside text-slate-400">${
+              typeof msrp === 'string' ? `<li>${msrp}</li>` : msrp
+            }</ul>
           </div>
-        </article>`;
+        </article>
+      `;
     }
 
     async function fetchAndRenderCars() {
       resultsArea.innerHTML = `<div class='text-center text-slate-400'>Loading...</div>`;
 
-      const location = countrySelect.value !== 'Any' ? `from ${countrySelect.value}` : (continentSelect.value !== 'Any' ? `from ${continentSelect.value}` : 'from anywhere');
-      const prompt = `List 5 influential ${document.getElementById('category-select').value} ${location} for the year ${yearSelect.value}. Return JSON array with carName, facts (array of unique and detailed facts highlighting motorsport legacy, technical uniqueness, and cultural relevance), engine (object), performance (object), msrp (string or object).`;
+      const location =
+        countrySelect.value !== 'Any'
+          ? `from ${countrySelect.value}`
+          : continentSelect.value !== 'Any'
+          ? `from ${continentSelect.value}`
+          : 'from anywhere';
 
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
+      const prompt = `List 5 influential ${
+        document.getElementById('category-select').value
+      } ${location} for the year ${yearSelect.value}. Return JSON array with carName, facts (array of unique and detailed facts highlighting motorsport legacy, technical uniqueness, and cultural relevance), engine (object), performance (object), msrp (string or object).`;
 
-      const data = await res.json();
-      const cars = data?.cars || data;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
 
-      resultsArea.innerHTML = '';
-      if (!Array.isArray(cars)) {
-        resultsArea.innerHTML = '<div class="text-red-400">Unexpected data format.</div>';
-        return;
-      }
+        const data = await res.json();
+        const cars = data?.cars || data;
 
-      cars.forEach(car => {
-        if ((car.name || car.carName) && Array.isArray(car.facts)) {
-          resultsArea.innerHTML += createCarCard(car);
-        } else {
-          console.warn("Invalid car object:", car);
+        resultsArea.innerHTML = '';
+        if (!Array.isArray(cars)) {
+          resultsArea.innerHTML = '<div class="text-red-400">Unexpected data format.</div>';
+          return;
         }
-      });
+
+        for (const car of cars) {
+          if ((car.name || car.carName) && Array.isArray(car.facts)) {
+            const cardHtml = await createCarCardAsync(car);
+            resultsArea.innerHTML += cardHtml;
+          } else {
+            console.warn('Invalid car object:', car);
+          }
+        }
+      } catch (error) {
+        resultsArea.innerHTML = `<div class="text-red-400">Failed to fetch car data: ${error.message}</div>`;
+      }
     }
+
+    // Attach event listener AFTER function declaration and elements exist
+    searchBtn.addEventListener('click', fetchAndRenderCars);
   </script>
 </body>
 </html>
