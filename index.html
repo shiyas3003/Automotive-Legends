@@ -119,21 +119,25 @@
     }
 
     function createCarCard(car) {
-      const name = car.name || 'Unknown Car';
-      const facts = Array.isArray(car.facts) ? car.facts.map(f => `<li>${f}</li>`).join('') : `<li>${car.facts || 'N/A'}</li>`;
+      const name = car.name || car.carName || 'Unknown Car';
+      const facts = Array.isArray(car.facts)
+        ? car.facts.map(f => `<li>${f}</li>`).join('')
+        : `<li>${car.facts || 'N/A'}</li>`;
       const engine = car.engine ? renderField(car.engine) : 'N/A';
       const performance = car.performance ? renderField(car.performance) : 'N/A';
       const msrp = typeof car.msrp === 'object' ? renderField(car.msrp) : car.msrp || 'N/A';
-      const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(name + ' car')}`;
+      const imageQuery = encodeURIComponent(`${name} ${car.category || 'car'}`);
+      const imageUrl = `https://source.unsplash.com/800x600/?${imageQuery}`;
+      const fallbackUrl = 'https://source.unsplash.com/800x600/?car';
 
       return `
         <article class="glass p-6 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-6 fade-in-content">
-          <img src="${imageUrl}" alt="Photo of ${name}" class="rounded-lg object-cover w-full h-48 md:h-full" onerror="this.style.display='none'"/>
+          <img src="${imageUrl}" alt="Photo of ${name}" class="rounded-lg object-cover w-full h-48 md:h-full" onerror="this.onerror=null;this.src='${fallbackUrl}'"/>
           <div class="md:col-span-2">
             <h2 class="text-3xl font-bold mb-2">${name}</h2>
-            <p class="text-slate-300"><strong>Facts:</strong></p>
+            <p class="text-slate-300"><strong>Interesting Details:</strong></p>
             <ul class="mb-3 list-disc list-inside text-slate-400">${facts}</ul>
-            <p class="text-slate-300"><strong>Engine:</strong></p>
+            <p class="text-slate-300"><strong>Powertrain & Engineering:</strong></p>
             <ul class="mb-3 list-disc list-inside text-slate-400">${engine}</ul>
             <p class="text-slate-300"><strong>Performance:</strong></p>
             <ul class="mb-3 list-disc list-inside text-slate-400">${performance}</ul>
@@ -147,7 +151,7 @@
       resultsArea.innerHTML = `<div class='text-center text-slate-400'>Loading...</div>`;
 
       const location = countrySelect.value !== 'Any' ? `from ${countrySelect.value}` : (continentSelect.value !== 'Any' ? `from ${continentSelect.value}` : 'from anywhere');
-      const prompt = `List 5 influential ${document.getElementById('category-select').value} ${location} for the year ${yearSelect.value}. Return JSON array with car name, facts (as array), engine (object), performance (object), and msrp (string or object).`;
+      const prompt = `List 5 influential ${document.getElementById('category-select').value} ${location} for the year ${yearSelect.value}. Return JSON array with carName, facts (array of unique and detailed facts highlighting motorsport legacy, technical uniqueness, and cultural relevance), engine (object), performance (object), msrp (string or object).`;
 
       const res = await fetch(API_URL, {
         method: 'POST',
@@ -156,7 +160,7 @@
       });
 
       const data = await res.json();
-      const cars = data?.cars || data; // API might return either structure
+      const cars = data?.cars || data;
 
       resultsArea.innerHTML = '';
       if (!Array.isArray(cars)) {
@@ -165,7 +169,11 @@
       }
 
       cars.forEach(car => {
-        resultsArea.innerHTML += createCarCard(car);
+        if ((car.name || car.carName) && Array.isArray(car.facts)) {
+          resultsArea.innerHTML += createCarCard(car);
+        } else {
+          console.warn("Invalid car object:", car);
+        }
       });
     }
   </script>
