@@ -46,9 +46,10 @@
         .main-container {
             display: flex;
             flex-direction: column; /* Mobile first */
-            max-width: 1400px;
+            width: 100%; /* Ensure it takes full width */
+            box-sizing: border-box; /* Include padding in width calculation */
             margin: 0 auto;
-            padding: 1rem;
+            padding: 1.5rem 2rem; /* Increased horizontal padding for large screens */
             gap: 1.5rem;
         }
 
@@ -80,7 +81,7 @@
         .sidebar h2 {
             font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.5rem; /* Adjusted margin */
             color: var(--primary-text);
         }
 
@@ -136,6 +137,7 @@
         .content-area {
             flex-grow: 1;
             width: 100%;
+            min-width: 0; /* Prevents content from overflowing flex container */
         }
         
         .section-title {
@@ -149,7 +151,7 @@
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Increased card width */
             gap: 1.5rem;
         }
 
@@ -235,7 +237,8 @@
     <div class="main-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <h2>Filters</h2>
+            <h2>Find Top Cars</h2>
+            <p class="text-sm text-gray-500 mb-6">Select criteria to discover the most influential cars of a specific year.</p>
             <div class="control-group">
                 <label for="year-select">Year</label>
                 <select id="year-select"></select>
@@ -261,7 +264,7 @@
                 <label for="country-select">Country</label>
                 <select id="country-select"></select>
             </div>
-            <button id="search-btn" type="button">Search</button>
+            <button id="search-btn" type="button">Find Top Cars</button>
         </aside>
 
         <!-- Main Content -->
