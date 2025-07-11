@@ -1,275 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Top Cars Explorer</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automotive Explorer</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-color: #0d1117;
+      --primary-text: #e6edf3;
+      --secondary-text: #7d8590;
+      --accent-color: #22d3ee;
+      --accent-glow: rgba(34, 211, 238, 0.3);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --card-bg: rgba(22, 27, 34, 0.6);
+    }
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #0d1117;
-      color: #e6edf3;
-      min-height: 100vh;
+      background-color: var(--bg-color);
+      color: var(--primary-text);
       background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
       background-size: 2rem 2rem;
     }
     .glass {
-      background: rgba(22, 27, 34, 0.7);
+      background-color: var(--card-bg);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 1rem;
+      border: 1px solid var(--border-color);
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
-    .loader {
-      border: 4px solid rgba(255, 255, 255, 0.1);
-      border-top-color: #22d3ee;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: auto;
+    .fade-in-content {
+      animation: fade-in-up 0.5s ease-out;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
+    @keyframes fade-in-up {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    article {
+      margin-bottom: 1.5rem;
     }
   </style>
 </head>
-<body>
-  <header class="relative h-64 bg-cover bg-center text-white" style="background-image: url('https://source.unsplash.com/1600x900/?classic-car,sports-car');">
+<body class="min-h-screen">
+  <header class="relative h-64 bg-cover bg-center text-white" style="background-image: url('https://source.unsplash.com/1600x900/?classic-car');">
     <div class="bg-black bg-opacity-60 h-full flex flex-col justify-center items-center">
-      <h1 class="text-4xl md:text-5xl font-bold drop-shadow-md">Top Cars Explorer</h1>
-      <p class="mt-2 text-lg text-slate-300 max-w-xl text-center px-4">
-        Discover the most influential road, F1, and rally cars by year, continent, and country. Dive into technical details and stories any petrolhead would love.
-      </p>
+      <h1 class="text-5xl font-bold drop-shadow-md">Automotive Explorer</h1>
+      <p class="mt-2 text-lg text-slate-200">Discover the most iconic cars in history</p>
     </div>
   </header>
 
   <main class="container mx-auto px-4 py-8">
-    <section class="glass p-6 mb-10">
-      <form id="filter-form" class="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
-        <div>
-          <label for="year" class="block mb-1 text-slate-300 font-medium">Year</label>
-          <select id="year" name="year" class="w-full rounded-md bg-[#1f2937] text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
+    <div class="glass p-6 rounded-2xl mb-10">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
+        <div class="flex flex-col gap-2">
+          <label for="year-select" class="text-sm font-medium text-slate-300">Year</label>
+          <select id="year-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg"></select>
         </div>
-        <div>
-          <label for="category" class="block mb-1 text-slate-300 font-medium">Category</label>
-          <select id="category" name="category" class="w-full rounded-md bg-[#1f2937] text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-            <option value="Road Cars">Road Cars</option>
-            <option value="F1">F1</option>
-            <option value="Rally">Rally</option>
+        <div class="flex flex-col gap-2">
+          <label for="category-select" class="text-sm font-medium text-slate-300">Category</label>
+          <select id="category-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg">
+            <option>Road Cars</option>
+            <option>F1</option>
+            <option>Rally</option>
           </select>
         </div>
-        <div>
-          <label for="continent" class="block mb-1 text-slate-300 font-medium">Continent</label>
-          <select id="continent" name="continent" class="w-full rounded-md bg-[#1f2937] text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-            <option value="Any">Any</option>
-            <option value="Europe">Europe</option>
-            <option value="Asia">Asia</option>
-            <option value="North America">North America</option>
-            <option value="South America">South America</option>
-            <option value="Africa">Africa</option>
-            <option value="Oceania">Oceania</option>
+        <div class="flex flex-col gap-2">
+          <label for="continent-select" class="text-sm font-medium text-slate-300">Continent</label>
+          <select id="continent-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg">
+            <option>Any</option><option>Europe</option><option>Asia</option><option>North America</option>
           </select>
         </div>
-        <div>
-          <label for="country" class="block mb-1 text-slate-300 font-medium">Country</label>
-          <select id="country" name="country" class="w-full rounded-md bg-[#1f2937] text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
+        <div class="flex flex-col gap-2">
+          <label for="country-select" class="text-sm font-medium text-slate-300">Country</label>
+          <select id="country-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg"></select>
         </div>
-        <div>
-          <button type="submit" class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:bg-cyan-600 transition">
-            Search
-          </button>
-        </div>
-      </form>
-    </section>
+        <button onclick="fetchAndRenderCars()" class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:scale-105 transition">Search</button>
+      </div>
+    </div>
 
-    <section id="results" class="space-y-8"></section>
+    <div id="results-area"></div>
   </main>
 
   <script>
     const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate';
 
-    const yearSelect = document.getElementById('year');
-    const categorySelect = document.getElementById('category');
-    const continentSelect = document.getElementById('continent');
-    const countrySelect = document.getElementById('country');
-    const resultsSection = document.getElementById('results');
-    const filterForm = document.getElementById('filter-form');
+    const yearSelect = document.getElementById('year-select');
+    const continentSelect = document.getElementById('continent-select');
+    const countrySelect = document.getElementById('country-select');
+    const resultsArea = document.getElementById('results-area');
 
-    // Countries by continent (expand as needed)
-    const countriesByContinent = {
-      Any: ['Any'],
-      Europe: ['Any', 'Germany', 'Italy', 'United Kingdom', 'France', 'Sweden', 'Spain'],
-      Asia: ['Any', 'Japan', 'South Korea', 'China', 'India'],
-      'North America': ['Any', 'United States', 'Canada', 'Mexico'],
-      'South America': ['Any', 'Brazil', 'Argentina', 'Chile'],
-      Africa: ['Any', 'South Africa', 'Morocco', 'Egypt'],
-      Oceania: ['Any', 'Australia', 'New Zealand'],
+    const countryData = {
+      'Any': ['Any'],
+      'Europe': ['Any', 'Germany', 'Italy', 'France', 'United Kingdom', 'Sweden'],
+      'Asia': ['Any', 'Japan', 'South Korea'],
+      'North America': ['Any', 'United States']
     };
 
-    // Populate years dropdown from current year back to 1950
-    function populateYears() {
-      const currentYear = new Date().getFullYear();
-      for (let y = currentYear; y >= 1950; y--) {
-        const option = document.createElement('option');
-        option.value = y;
-        option.textContent = y;
-        yearSelect.appendChild(option);
+    for (let year = new Date().getFullYear(); year >= 1886; year--) {
+      const opt = document.createElement('option');
+      opt.value = year;
+      opt.textContent = year;
+      yearSelect.appendChild(opt);
+    }
+
+    continentSelect.addEventListener('change', () => {
+      const countries = countryData[continentSelect.value] || ['Any'];
+      countrySelect.innerHTML = countries.map(c => `<option>${c}</option>`).join('');
+    });
+    continentSelect.dispatchEvent(new Event('change'));
+
+    function renderField(value) {
+      if (value === null || value === undefined) return 'N/A';
+      if (typeof value === 'object') {
+        return Object.entries(value).map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`).join('');
       }
-      yearSelect.value = currentYear;
+      return value;
     }
 
-    // Populate country dropdown based on selected continent
-    function updateCountries() {
-      const continent = continentSelect.value;
-      countrySelect.innerHTML = '';
-      const countries = countriesByContinent[continent] || ['Any'];
-      countries.forEach(country => {
-        const option = document.createElement('option');
-        option.value = country;
-        option.textContent = country;
-        countrySelect.appendChild(option);
-      });
-      countrySelect.value = 'Any';
-    }
-
-    continentSelect.addEventListener('change', updateCountries);
-
-    // API call helper
-    async function callApi(prompt) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ prompt }),
-          signal: controller.signal
-        });
-
-        if (!response.ok) {
-          const errJson = await response.json();
-          throw new Error(errJson.error || `Error: ${response.status}`);
-        }
-        return await response.json();
-      } catch (e) {
-        if (e.name === 'AbortError') {
-          throw new Error('Request timed out. Please try again.');
-        }
-        throw e;
-      } finally {
-        clearTimeout(timeoutId);
-      }
-    }
-
-    // Fetch top 5 cars list from AI
-    async function getTopCars(year, category, continent, country) {
-      let locationPhrase = 'from anywhere';
-      if (country !== 'Any') {
-        locationPhrase = `from ${country}`;
-      } else if (continent !== 'Any') {
-        locationPhrase = `from ${continent}`;
-      }
-      const prompt = `Generate a JSON object with a single key "cars" containing an array of the top 5 influential ${category} cars ${locationPhrase} for the year ${year}. Return only JSON.`;
-
-      const data = await callApi(prompt);
-      return data.cars || [];
-    }
-
-    // Fetch detailed info for a car
-    async function getCarDetails(carName, year) {
-      const prompt = `For the car "${carName}" in the year ${year}, provide a JSON object with these keys:
-- "facts": interesting facts petrolheads would love,
-- "engine": engine specifications,
-- "performance": performance details (e.g. horsepower, top speed),
-- "msrp": original MSRP price if available,
-Return "N/A" for any data you cannot find. Return only JSON.`;
-
-      const data = await callApi(prompt);
-      data.name = carName;
-      return data;
-    }
-
-    // Create a car card element from data
     function createCarCard(car) {
-      const photoQuery = encodeURIComponent(`${car.name} car ${car.engine || ''}`.trim());
-      const imageUrl = `https://source.unsplash.com/800x600/?${photoQuery}`;
+      const name = car.name || 'Unknown Car';
+      const facts = Array.isArray(car.facts) ? car.facts.map(f => `<li>${f}</li>`).join('') : `<li>${car.facts || 'N/A'}</li>`;
+      const engine = car.engine ? renderField(car.engine) : 'N/A';
+      const performance = car.performance ? renderField(car.performance) : 'N/A';
+      const msrp = typeof car.msrp === 'object' ? renderField(car.msrp) : car.msrp || 'N/A';
+      const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(name + ' car')}`;
 
       return `
-        <article class="glass p-6 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-          <img src="${imageUrl}" alt="Photo of ${car.name}" class="rounded-lg object-cover w-full h-48 md:h-full" onerror="this.style.display='none'"/>
+        <article class="glass p-6 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-6 fade-in-content">
+          <img src="${imageUrl}" alt="Photo of ${name}" class="rounded-lg object-cover w-full h-48 md:h-full" onerror="this.style.display='none'"/>
           <div class="md:col-span-2">
-            <h2 class="text-3xl font-bold mb-2">${car.name}</h2>
-            <p class="mb-3 text-slate-300"><strong>Facts:</strong> ${car.facts || 'N/A'}</p>
-            <p class="mb-1"><strong>Engine:</strong> ${car.engine || 'N/A'}</p>
-            <p class="mb-1"><strong>Performance:</strong> ${car.performance || 'N/A'}</p>
-            <p class="mb-1"><strong>MSRP:</strong> ${car.msrp || 'N/A'}</p>
+            <h2 class="text-3xl font-bold mb-2">${name}</h2>
+            <p class="text-slate-300"><strong>Facts:</strong></p>
+            <ul class="mb-3 list-disc list-inside text-slate-400">${facts}</ul>
+            <p class="text-slate-300"><strong>Engine:</strong></p>
+            <ul class="mb-3 list-disc list-inside text-slate-400">${engine}</ul>
+            <p class="text-slate-300"><strong>Performance:</strong></p>
+            <ul class="mb-3 list-disc list-inside text-slate-400">${performance}</ul>
+            <p class="text-slate-300"><strong>MSRP:</strong></p>
+            <ul class="mb-3 list-disc list-inside text-slate-400">${typeof msrp === 'string' ? `<li>${msrp}</li>` : msrp}</ul>
           </div>
-        </article>
-      `;
+        </article>`;
     }
 
-    // Show loading spinner
-    function showLoading() {
-      resultsSection.innerHTML = `<div class="loader my-20"></div>`;
-    }
+    async function fetchAndRenderCars() {
+      resultsArea.innerHTML = `<div class='text-center text-slate-400'>Loading...</div>`;
 
-    // Show error message
-    function showError(message) {
-      resultsSection.innerHTML = `
-        <p class="text-center text-red-400 bg-black bg-opacity-50 p-6 rounded-lg max-w-xl mx-auto">${message}</p>
-      `;
-    }
+      const location = countrySelect.value !== 'Any' ? `from ${countrySelect.value}` : (continentSelect.value !== 'Any' ? `from ${continentSelect.value}` : 'from anywhere');
+      const prompt = `List 5 influential ${document.getElementById('category-select').value} ${location} for the year ${yearSelect.value}. Return JSON array with car name, facts (as array), engine (object), performance (object), and msrp (string or object).`;
 
-    // Main search handler
-    async function handleSearch(event) {
-      event.preventDefault();
-      resultsSection.innerHTML = '';
-      showLoading();
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
 
-      const year = yearSelect.value;
-      const category = categorySelect.value;
-      const continent = continentSelect.value;
-      const country = countrySelect.value;
+      const data = await res.json();
+      const cars = data?.cars || data; // API might return either structure
 
-      try {
-        const cars = await getTopCars(year, category, continent, country);
-        if (!cars.length) {
-          showError('No cars found for this selection.');
-          return;
-        }
-
-        // Fetch details for all cars concurrently
-        const detailsPromises = cars.map(car => getCarDetails(car, year));
-        const carsDetails = await Promise.all(detailsPromises);
-
-        // Render all cards
-        resultsSection.innerHTML = carsDetails
-          .map(createCarCard)
-          .join('');
-      } catch (error) {
-        showError(error.message);
+      resultsArea.innerHTML = '';
+      if (!Array.isArray(cars)) {
+        resultsArea.innerHTML = '<div class="text-red-400">Unexpected data format.</div>';
+        return;
       }
-    }
 
-    // Initialization
-    function init() {
-      populateYears();
-      updateCountries();
-      filterForm.addEventListener('submit', handleSearch);
-      // Initial load
-      handleSearch(new Event('submit'));
+      cars.forEach(car => {
+        resultsArea.innerHTML += createCarCard(car);
+      });
     }
-
-    window.onload = init;
   </script>
 </body>
 </html>
