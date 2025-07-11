@@ -1,310 +1,496 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Automotive Explorer</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
-  <style>
-    :root {
-      --bg-color: #0d1117;
-      --primary-text: #e6edf3;
-      --secondary-text: #7d8590;
-      --accent-color: #22d3ee;
-      --accent-glow: rgba(34, 211, 238, 0.3);
-      --border-color: rgba(255, 255, 255, 0.1);
-      --card-bg: rgba(22, 27, 34, 0.6);
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--primary-text);
-      background-image: radial-gradient(
-        circle at 1px 1px,
-        rgba(255, 255, 255, 0.05) 1px,
-        transparent 0
-      );
-      background-size: 2rem 2rem;
-    }
-    .glass {
-      background-color: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border-color);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    }
-    .fade-in-content {
-      animation: fade-in-up 0.5s ease-out;
-    }
-    @keyframes fade-in-up {
-      0% {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    article {
-      margin-bottom: 1.5rem;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automotive Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-color: #f4f7f9;
+            --sidebar-bg: #ffffff;
+            --primary-text: #1a202c;
+            --secondary-text: #4a5568;
+            --accent-color: #4285f4;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --shadow-color: rgba(66, 133, 244, 0.1);
+            --shadow-hover-color: rgba(66, 133, 244, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+        }
+
+        /* --- Header --- */
+        header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/1600x900/?automotive');
+            background-size: cover;
+            background-position: center;
+            height: 200px; /* Slightly reduced height */
+        }
+
+        header h1 {
+            text-shadow: 0 2px 5px rgba(0,0,0,0.6);
+        }
+
+        header p {
+            color: #e0e0e0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            display: flex;
+            flex-direction: column; /* Mobile first */
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .main-container {
+                flex-direction: row; /* Sidebar layout for desktop */
+            }
+        }
+
+        /* --- Sidebar (Filters) --- */
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            align-self: flex-start; /* Prevent stretching */
+            width: 100%;
+        }
+        
+        @media (min-width: 1024px) {
+            .sidebar {
+                width: 300px;
+                flex-shrink: 0;
+                position: sticky;
+                top: 1.5rem; /* Stick to top on scroll */
+            }
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary-text);
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #f9fafb;
+            transition: all 0.2s ease-in-out;
+        }
+
+        select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--shadow-color);
+            background: white;
+        }
+
+        #search-btn {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            margin-top: 1.5rem;
+        }
+
+        #search-btn:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(66, 133, 244, 0.4);
+        }
+
+        /* --- Content Area --- */
+        .content-area {
+            flex-grow: 1;
+            width: 100%;
+        }
+        
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--primary-text);
+            margin-bottom: 1rem; /* Adjusted margin */
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* --- New Card Design --- */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px var(--shadow-hover-color);
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card h2 {
+            margin: 0 0 0.75rem 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-text);
+        }
+
+        .card p, .card ul {
+            margin: 0.25rem 0;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .card p strong {
+            color: var(--primary-text);
+            font-weight: 600;
+        }
+
+        .card ul {
+            padding-left: 1.25rem;
+            list-style-type: disc;
+        }
+        
+        .card ul li::marker {
+            color: var(--accent-color);
+        }
+        
+        #results-area {
+            margin-bottom: 3rem; /* Space between results and iconic cars */
+        }
+        
+        .significance-text {
+            font-style: italic;
+            background-color: #f9fafb;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+            color: var(--secondary-text);
+            margin-top: 1rem;
+        }
+    </style>
 </head>
-<body class="min-h-screen">
-  <header
-    class="relative h-64 bg-cover bg-center text-white"
-    style="background-image: url('https://source.unsplash.com/1600x900/?classic-car')"
-  >
-    <div class="bg-black bg-opacity-60 h-full flex flex-col justify-center items-center">
-      <h1 class="text-5xl font-bold drop-shadow-md">Automotive Explorer</h1>
-      <p class="mt-2 text-lg text-slate-200">Discover the most iconic cars in history</p>
+<body class="bg-gray-50">
+
+    <header class="flex flex-col justify-center items-center text-white p-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-center">Automotive Explorer</h1>
+        <p class="mt-2 text-lg md:text-xl font-light">Discover the most iconic cars in history</p>
+    </header>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>Filters</h2>
+            <div class="control-group">
+                <label for="year-select">Year</label>
+                <select id="year-select"></select>
+            </div>
+            <div class="control-group">
+                <label for="category-select">Category</label>
+                <select id="category-select">
+                    <option>Road Cars</option>
+                    <option>F1</option>
+                    <option>Rally</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="continent-select">Continent</label>
+                <select id="continent-select">
+                    <option>Any</option>
+                    <option>Europe</option>
+                    <option>Asia</option>
+                    <option>North America</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="country-select">Country</label>
+                <select id="country-select"></select>
+            </div>
+            <button id="search-btn" type="button">Search</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content-area">
+            <section id="results-area" aria-live="polite">
+                <!-- Search results will be injected here -->
+            </section>
+
+            <section id="iconic-cars-section">
+                <h2 class="section-title">Iconic Road Cars</h2>
+                <p class="mb-6 text-gray-600">These are cars that changed the game. They introduced new technology, defined a genre, or became cultural touchstones. Here's a random selection of vehicles that left a permanent mark on the automotive world.</p>
+                <div id="iconic-road-cars-grid" class="results-grid">
+                    <!-- Iconic cars will be injected here -->
+                </div>
+            </section>
+        </main>
     </div>
-  </header>
 
-  <main class="container mx-auto px-4 py-8">
-    <div class="glass p-6 rounded-2xl mb-10">
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
-        <div class="flex flex-col gap-2">
-          <label for="year-select" class="text-sm font-medium text-slate-300">Year</label>
-          <select id="year-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg"></select>
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="category-select" class="text-sm font-medium text-slate-300">Category</label>
-          <select id="category-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg">
-            <option>Road Cars</option>
-            <option>F1</option>
-            <option>Rally</option>
-          </select>
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="continent-select" class="text-sm font-medium text-slate-300">Continent</label>
-          <select id="continent-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg">
-            <option>Any</option>
-            <option>Europe</option>
-            <option>Asia</option>
-            <option>North America</option>
-          </select>
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="country-select" class="text-sm font-medium text-slate-300">Country</label>
-          <select id="country-select" class="bg-[#1f2937] text-white px-3 py-2 rounded-lg"></select>
-        </div>
-        <button
-          id="search-btn"
-          class="w-full bg-cyan-500 text-black font-bold px-6 py-2 rounded-lg hover:scale-105 transition"
-        >
-          Search
-        </button>
-      </div>
-    </div>
+    <script>
+        // --- API and Element Configuration ---
+        const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate';
+        const PEXELS_API_KEY = '3VaPBD0V0wEMSOBsbF9g1sAoBB31PJhCq4jHpIfVcykBrdLKHfn0WMcB';
+        const PIXABAY_API_KEY = ''; // Replace with your key if you have one
 
-    <div id="results-area"></div>
-  </main>
+        const yearSelect = document.getElementById('year-select');
+        const continentSelect = document.getElementById('continent-select');
+        const countrySelect = document.getElementById('country-select');
+        const categorySelect = document.getElementById('category-select');
+        const searchBtn = document.getElementById('search-btn');
+        
+        const resultsArea = document.getElementById('results-area');
+        const iconicGrid = document.getElementById('iconic-road-cars-grid');
 
-  <script>
-    const API_URL = 'https://gemini-backend-1eb3.onrender.com/generate';
+        const countryData = {
+            Any: ['Any'],
+            Europe: ['Any', 'Germany', 'Italy', 'France', 'United Kingdom', 'Sweden'],
+            Asia: ['Any', 'Japan', 'South Korea'],
+            'North America': ['Any', 'United States']
+        };
 
-    const PEXELS_API_KEY = '3VaPBD0V0wEMSOBsbF9g1sAoBB31PJhCq4jHpIfVcykBrdLKHfn0WMcB'; // Replace with your actual key
-    const PIXABAY_API_KEY = 'YOUR_PIXABAY_API_KEY'; // Replace with your actual key
-
-    const yearSelect = document.getElementById('year-select');
-    const continentSelect = document.getElementById('continent-select');
-    const countrySelect = document.getElementById('country-select');
-    const resultsArea = document.getElementById('results-area');
-    const searchBtn = document.getElementById('search-btn');
-
-    const countryData = {
-      Any: ['Any'],
-      Europe: ['Any', 'Germany', 'Italy', 'France', 'United Kingdom', 'Sweden'],
-      Asia: ['Any', 'Japan', 'South Korea'],
-      'North America': ['Any', 'United States']
-    };
-
-    // Populate year selector
-    for (let year = new Date().getFullYear(); year >= 1886; year--) {
-      const opt = document.createElement('option');
-      opt.value = year;
-      opt.textContent = year;
-      yearSelect.appendChild(opt);
-    }
-
-    // Populate country selector on continent change
-    continentSelect.addEventListener('change', () => {
-      const countries = countryData[continentSelect.value] || ['Any'];
-      countrySelect.innerHTML = countries.map((c) => `<option>${c}</option>`).join('');
-    });
-    continentSelect.dispatchEvent(new Event('change'));
-
-    function renderField(value) {
-      if (value === null || value === undefined) return 'N/A';
-      if (typeof value === 'object') {
-        return Object.entries(value)
-          .map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`)
-          .join('');
-      }
-      return value;
-    }
-
-    async function fetchUnsplashImage(query) {
-      const url = `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}`;
-      try {
-        const res = await fetch(url, { method: 'HEAD' });
-        if (res.ok) return url;
-      } catch {}
-      return null;
-    }
-
-    async function fetchPexelsImage(query) {
-      if (!PEXELS_API_KEY) return null;
-      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1`;
-      try {
-        const res = await fetch(url, {
-          headers: { Authorization: PEXELS_API_KEY }
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data.photos?.[0]?.src?.medium || null;
-      } catch {
-        return null;
-      }
-    }
-
-    async function fetchPixabayImage(query) {
-      if (!PIXABAY_API_KEY) return null;
-      const url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(
-        query
-      )}&image_type=photo&per_page=3`;
-      try {
-        const res = await fetch(url);
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data.hits?.[0]?.webformatURL || null;
-      } catch {
-        return null;
-      }
-    }
-
-    async function fetchWikimediaImage(query) {
-      const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(
-        query
-      )}&gsrlimit=1&prop=imageinfo&iiprop=url&format=json&origin=*`;
-      try {
-        const res = await fetch(url);
-        if (!res.ok) return null;
-        const data = await res.json();
-        const pages = data.query?.pages;
-        if (!pages) return null;
-        const page = Object.values(pages)[0];
-        const imgInfo = page.imageinfo?.[0];
-        return imgInfo?.url || null;
-      } catch {
-        return null;
-      }
-    }
-
-    async function fetchCarImage(query) {
-      let img = await fetchUnsplashImage(query);
-      if (img) return img;
-
-      img = await fetchPexelsImage(query);
-      if (img) return img;
-
-      img = await fetchPixabayImage(query);
-      if (img) return img;
-
-      img = await fetchWikimediaImage(query);
-      if (img) return img;
-
-      return 'https://via.placeholder.com/800x600?text=No+Image+Available'; // fallback
-    }
-
-    async function createCarCardAsync(car) {
-      const name = car.name || car.carName || 'Unknown Car';
-      const facts = Array.isArray(car.facts)
-        ? car.facts.map((f) => `<li>${f}</li>`).join('')
-        : `<li>${car.facts || 'N/A'}</li>`;
-      const engine = car.engine ? renderField(car.engine) : 'N/A';
-      const performance = car.performance ? renderField(car.performance) : 'N/A';
-      const msrp =
-        typeof car.msrp === 'object' ? renderField(car.msrp) : car.msrp || 'N/A';
-
-      const imageQuery = `${name} ${car.category || 'car'}`;
-      const imageUrl = await fetchCarImage(imageQuery);
-
-      return `
-        <article class="glass p-6 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-6 fade-in-content">
-          <img
-            src="${imageUrl}"
-            alt="Photo of ${name}"
-            class="rounded-lg object-cover w-full h-48 md:h-full"
-          />
-          <div class="md:col-span-2">
-            <h2 class="text-3xl font-bold mb-2">${name}</h2>
-            <p class="text-slate-300"><strong>Interesting Details:</strong></p>
-            <ul class="mb-3 list-disc list-inside text-slate-400">${facts}</ul>
-            <p class="text-slate-300"><strong>Powertrain & Engineering:</strong></p>
-            <ul class="mb-3 list-disc list-inside text-slate-400">${engine}</ul>
-            <p class="text-slate-300"><strong>Performance:</strong></p>
-            <ul class="mb-3 list-disc list-inside text-slate-400">${performance}</ul>
-            <p class="text-slate-300"><strong>MSRP:</strong></p>
-            <ul class="mb-3 list-disc list-inside text-slate-400">${
-              typeof msrp === 'string' ? `<li>${msrp}</li>` : msrp
-            }</ul>
-          </div>
-        </article>
-      `;
-    }
-
-    async function fetchAndRenderCars() {
-      resultsArea.innerHTML = `<div class='text-center text-slate-400'>Loading...</div>`;
-
-      const location =
-        countrySelect.value !== 'Any'
-          ? `from ${countrySelect.value}`
-          : continentSelect.value !== 'Any'
-          ? `from ${continentSelect.value}`
-          : 'from anywhere';
-
-      const prompt = `List 5 influential ${
-        document.getElementById('category-select').value
-      } ${location} for the year ${yearSelect.value}. Return JSON array with carName, facts (array of unique and detailed facts highlighting motorsport legacy, technical uniqueness, and cultural relevance), engine (object), performance (object), msrp (string or object).`;
-
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
-        });
-
-        const data = await res.json();
-        const cars = data?.cars || data;
-
-        resultsArea.innerHTML = '';
-        if (!Array.isArray(cars)) {
-          resultsArea.innerHTML = '<div class="text-red-400">Unexpected data format.</div>';
-          return;
+        // --- Initial Setup ---
+        function populateYears() {
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year >= 1886; year--) {
+                const opt = document.createElement('option');
+                opt.value = year;
+                opt.textContent = year;
+                yearSelect.appendChild(opt);
+            }
         }
 
-        for (const car of cars) {
-          if ((car.name || car.carName) && Array.isArray(car.facts)) {
-            const cardHtml = await createCarCardAsync(car);
-            resultsArea.innerHTML += cardHtml;
-          } else {
-            console.warn('Invalid car object:', car);
-          }
+        function updateCountries() {
+            const countries = countryData[continentSelect.value] || ['Any'];
+            countrySelect.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
         }
-      } catch (error) {
-        resultsArea.innerHTML = `<div class="text-red-400">Failed to fetch car data: ${error.message}</div>`;
-      }
-    }
 
-    // Attach event listener AFTER function declaration and elements exist
-    searchBtn.addEventListener('click', fetchAndRenderCars);
-  </script>
+        // --- Image Fetching Logic ---
+        async function fetchCarImage(query) {
+            let imageUrl = `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}`;
+            try {
+                const response = await fetch(imageUrl, { method: 'HEAD' });
+                if (response.ok && !response.url.includes('source-404')) {
+                    return response.url;
+                }
+            } catch (e) {
+                console.warn("Unsplash HEAD request failed, will try other sources.", e);
+            }
+            
+            if (PEXELS_API_KEY) {
+                const pexelsUrl = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1`;
+                try {
+                    const res = await fetch(pexelsUrl, { headers: { Authorization: PEXELS_API_KEY } });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.photos && data.photos.length > 0) {
+                            return data.photos[0].src.large;
+                        }
+                    }
+                } catch (e) { console.error("Pexels fetch failed:", e); }
+            }
+
+            if (PIXABAY_API_KEY) {
+                 const pixabayUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=3`;
+                 try {
+                     const res = await fetch(pixabayUrl);
+                     if (res.ok) {
+                         const data = await res.json();
+                         if (data.hits && data.hits.length > 0) {
+                            return data.hits[0].webformatURL;
+                         }
+                     }
+                 } catch (e) { console.error("Pixabay fetch failed:", e); }
+            }
+
+            return `https://placehold.co/400x300/e0e0e0/757575?text=Image+Not+Found`;
+        }
+
+        // --- Card Rendering ---
+        function renderField(value) {
+            if (value === null || value === undefined || Object.keys(value).length === 0) return '<li>N/A</li>';
+            if (typeof value === 'object') {
+                return Object.entries(value)
+                    .map(([k, v]) => `<li><strong>${k}:</strong> ${v || 'N/A'}</li>`)
+                    .join('');
+            }
+            return `<li>${value}</li>`;
+        }
+
+        async function createCarCardAsync(car) {
+            const name = car.name || car.carName || 'Unknown Car';
+            const facts = Array.isArray(car.facts) ? car.facts.map(f => `<li>${f}</li>`).join('') : `<li>${car.facts || 'N/A'}</li>`;
+            const engine = car.engine ? renderField(car.engine) : '<li>N/A</li>';
+            const performance = car.performance ? renderField(car.performance) : '<li>N/A</li>';
+            const msrp = car.msrp ? renderField(car.msrp) : '<li>N/A</li>';
+            const significance = car.significance || 'This car played a key role in automotive history.';
+
+            const imageQuery = `${name} ${car.year || ''} ${car.category || 'car'}`;
+            const imageUrl = await fetchCarImage(imageQuery);
+
+            return `
+                <article class="card">
+                    <img src="${imageUrl}" alt="Photo of ${name}" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/400x300/e0e0e0/757575?text=Image+Error';" />
+                    <div class="card-content">
+                        <h2>${name}</h2>
+                        <p><strong>Interesting Details:</strong></p>
+                        <ul>${facts}</ul>
+                        <p class="mt-2"><strong>Powertrain & Engineering:</strong></p>
+                        <ul>${engine}</ul>
+                        <p class="mt-2"><strong>Performance:</strong></p>
+                        <ul>${performance}</ul>
+                        <p class="mt-2"><strong>MSRP:</strong></p>
+                        <ul>${msrp}</ul>
+                        <p class="mt-4"><strong>Why it's an Icon:</strong></p>
+                        <p class="significance-text">${significance}</p>
+                    </div>
+                </article>`;
+        }
+        
+        // --- Main Application Logic ---
+        async function fetchAndRenderCars() {
+            resultsArea.innerHTML = `
+                <h2 class="section-title">Search Results</h2>
+                <p class="text-center text-lg text-gray-500 py-8" aria-live="polite">Searching for automotive legends...</p>`;
+
+            const location = countrySelect.value !== 'Any' ? `from ${countrySelect.value}` :
+                             continentSelect.value !== 'Any' ? `from ${continentSelect.value}` : 'from anywhere';
+
+            const prompt = `List 5 influential ${categorySelect.value} ${location} for the year ${yearSelect.value}. Return JSON array with carName, facts (array of unique and detailed facts highlighting motorsport legacy, technical uniqueness, and cultural relevance), engine (object), performance (object), and msrp (string or object).`;
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt }),
+                });
+
+                if (!res.ok) {
+                    throw new Error(`API request failed with status ${res.status}`);
+                }
+
+                const data = await res.json();
+                const cars = data?.cars || data;
+
+                if (!Array.isArray(cars) || cars.length === 0) {
+                     resultsArea.innerHTML = `
+                        <h2 class="section-title">Search Results</h2>
+                        <p class="text-center text-lg text-gray-500 py-8">No results found for your criteria. Try a different year or location!</p>`;
+                    return;
+                }
+
+                const cardsHtmlPromises = cars
+                    .filter(car => (car.name || car.carName) && Array.isArray(car.facts))
+                    .map(createCarCardAsync);
+                
+                const cardsHtml = await Promise.all(cardsHtmlPromises);
+
+                resultsArea.innerHTML = `
+                    <h2 class="section-title">Search Results</h2>
+                    <div class="results-grid">${cardsHtml.join('')}</div>`;
+
+            } catch (error) {
+                console.error("Failed to fetch car data:", error);
+                resultsArea.innerHTML = `
+                    <h2 class="section-title">Search Results</h2>
+                    <p class="text-red-600 text-center py-8">Failed to fetch car data. ${error.message}. Please try again later.</p>`;
+            }
+        }
+
+        // --- Predefined Iconic Cars ---
+        const iconicCars = [
+            { name: "Ford Model T", year: 1908, facts: ["First affordable automobile.", "Production reached 15 million units.", "Revolutionized manufacturing with the assembly line."], engine: { Type: "Inline-4", Displacement: "2.9L", Power: "20 hp" }, performance: { TopSpeed: "45 mph" }, msrp: "Started at $825, dropped to $260", category: "Road Cars", significance: "The Model T didn't just put America on wheels; it fundamentally changed industry and society, making personal mobility accessible to the masses for the first time." },
+            { name: "Volkswagen Beetle", year: 1938, facts: ["'The People's Car' with over 21 million produced.", "Air-cooled rear-engine design.", "A symbol of 1960s counter-culture."], engine: { Type: "Air-cooled flat-four", Displacement: "1.0L - 1.6L", Power: "25-60 hp" }, performance: { TopSpeed: "~75 mph" }, msrp: "Originally very affordable", category: "Road Cars", significance: "The Beetle brought motoring to the masses globally. Its simple, robust design and incredible production numbers made it a cultural icon beloved for generations." },
+            { name: "Citroën DS", year: 1955, facts: ["Futuristic, aerodynamic design.", "Pioneered hydropneumatic self-levelling suspension.", "First mass-production car with disc brakes."], engine: { Type: "Inline-4", Displacement: "1.9L - 2.3L", Power: "75-141 hp" }, performance: { TopSpeed: "100-120 mph" }, msrp: "Premium pricing for its time", category: "Road Cars", significance: "The DS was a technological marvel that looked like it came from the future. Its revolutionary suspension provided an unmatched ride quality, setting new standards for comfort and handling." },
+            { name: "Mini", year: 1959, facts: ["Revolutionary space-saving transverse engine and front-wheel drive layout.", "A British cultural icon of the 1960s.", "Giant-killer in motorsport, winning the Monte Carlo Rally."], engine: { Type: "A-Series inline-4", Displacement: "0.85L - 1.275L", Power: "34-76 hp" }, performance: { TopSpeed: "72-90 mph" }, msrp: "Extremely affordable", category: "Road Cars", significance: "The Mini's brilliant design packaged incredible space into a tiny footprint, influencing nearly every small car that followed. It proved that affordable cars could be fun and competitive." },
+            { name: "Jaguar E-Type", year: 1961, facts: ["Often called the most beautiful car ever made.", "Offered supercar performance at a fraction of the price.", "Featured monocoque construction and all-round independent suspension."], engine: { Type: "Inline-6 / V12", Displacement: "3.8L - 5.3L", Power: "265-272 hp" }, performance: { '0-60 mph': "~6.5s", TopSpeed: "150 mph" }, msrp: "£2,097 in 1961", category: "Road Cars", significance: "The E-Type combined breathtaking looks with sensational performance, becoming an instant legend. It defined the 1960s and remains a high-water mark for automotive design." },
+            { name: "Ford Mustang", year: 1964, facts: ["Created the 'pony car' class.", "Became Ford's most successful launch since the Model A.", "A symbol of American youth and freedom."], engine: { Type: "Inline-6 / V8", Displacement: "2.8L - 7.0L", Power: "105-375 hp" }, performance: { '0-60 mph': "Varies widely by engine" }, msrp: "Started at $2,368", category: "Road Cars", significance: "The Mustang captured the spirit of a generation, offering style and performance at an affordable price. It created a new market segment and became an enduring American cultural icon." },
+            { name: "Porsche 911", year: 1964, facts: ["An enduring sports car legend for over 50 years.", "Unique rear-engine, flat-six layout.", "Continuously evolved but never lost its core identity."], engine: { Type: "Air/Water-cooled flat-six", Displacement: "2.0L - 4.0L", Power: "130 hp to over 700 hp" }, performance: { '0-60 mph': "From ~8s to under 2.5s" }, msrp: "Premium sports car", category: "Road Cars", significance: "The 911 is the benchmark sports car, a testament to relentless engineering and evolution. Its unique character and motorsport success have made it a true automotive dynasty." },
+            { name: "Lancia Stratos HF", year: 1973, facts: ["The first car designed from the ground up for rally competition.", "Won the World Rally Championship three years in a row (1974-76).", "Used a Ferrari Dino V6 engine."], engine: { Type: "Ferrari Dino V6", Displacement: "2.4L", Power: "190 hp (road), ~300 hp (rally)" }, performance: { '0-60 mph': "Under 6s" }, msrp: "Very expensive, only 492 built", category: "Rally/Road", significance: "The Stratos changed rallying forever. It was a purpose-built weapon that dominated its era with a singular focus on performance, creating the template for all future rally supercars." },
+            { name: "McLaren F1", year: 1992, facts: ["Held the record for the fastest production car for over a decade (240.1 mph).", "First production car to use a carbon-fibre monocoque chassis.", "Unique three-seat layout with the driver in the center."], engine: { Type: "BMW S70/2 V12", Displacement: "6.1L", Power: "618 hp" }, performance: { '0-60 mph': "3.2s", TopSpeed: "240.1 mph" }, msrp: "$815,000", category: "Road Cars", significance: "The McLaren F1 was a money-no-object hypercar that redefined performance. Its obsessive engineering, use of exotic materials, and staggering speed set a benchmark that remained unbeaten for years." },
+            { name: "Tesla Model S", year: 2012, facts: ["Proved that electric cars could be desirable, high-performance vehicles.", "Offered 'Ludicrous Mode' with supercar-like acceleration.", "Transformed the public perception of EVs."], engine: { Type: "AC induction / Permanent Magnet motor", Power: "Up to 1,020 hp" }, performance: { '0-60 mph': "As low as 1.99s" }, msrp: "$70,000 - $130,000", category: "Road Cars", significance: "The Model S was a watershed moment for electric vehicles. It combined range, performance, technology, and style in a way no EV had before, forcing the entire auto industry to accelerate its transition to electric power." }
+        ];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        async function renderIconicCars() {
+            iconicGrid.innerHTML = `<p class="text-center text-lg text-gray-500 py-8 col-span-full">Loading iconic cars...</p>`;
+            
+            shuffleArray(iconicCars);
+            const selectedCars = iconicCars.slice(0, 3); // Show 3 random cars
+            
+            const cardsHtmlPromises = selectedCars.map(createCarCardAsync);
+            const cardsHtml = await Promise.all(cardsHtmlPromises);
+            iconicGrid.innerHTML = cardsHtml.join('');
+        }
+
+        // --- Event Listeners and Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            populateYears();
+            updateCountries();
+            renderIconicCars();
+
+            continentSelect.addEventListener('change', updateCountries);
+            searchBtn.addEventListener('click', fetchAndRenderCars);
+        });
+    </script>
 </body>
 </html>
